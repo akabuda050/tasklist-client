@@ -1,4 +1,5 @@
 import { reactive } from 'vue';
+import { useAuth } from './auth';
 
 type WebSocketState = {
   isConnected: boolean;
@@ -43,6 +44,10 @@ export function useWebSocket() {
 
       setInterval(() => {
         state.isConnected = state.socket?.readyState === WebSocket.OPEN;
+
+        if (!state.isConnected || !state.socket) {
+          useAuth().checkAuth();
+        }
       }, 10000);
     }
   }

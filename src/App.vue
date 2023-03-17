@@ -18,6 +18,13 @@ onBeforeMount(() => {
       <TaskList v-if="auth.isAuthenticated() && webSocket.isConnected()" />
       <div v-else>
         <Auth v-if="!auth.isAuthenticated() && !webSocket.isConnected()" />
+        <div v-else>
+          <div class="flex items-center justify-center h-screen">
+            <div class="flex flex-col mx-auto justify-start">
+              <h1 class="text-lg font-bold">Trying to reconnect...</h1>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
   </div>

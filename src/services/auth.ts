@@ -81,20 +81,26 @@ export const useAuth = () => {
     disconnect();
   };
 
-  const checkAuth = (mounted: Ref) => {
+  const checkAuth = (mounted?: Ref) => {
     if (localStorage.getItem('token')) {
       if (!isConnected()) {
         connect(
           () => {
             state.isAuthenticated = true;
-            mounted.value = true;
+
             send('list', {});
+
+            if (mounted) {
+              mounted.value = true;
+            }
           },
           () => {},
         );
       }
     } else {
-      mounted.value = true;
+      if (mounted) {
+        mounted.value = true;
+      }
     }
   };
 
