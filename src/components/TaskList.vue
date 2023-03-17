@@ -219,7 +219,7 @@
                     }
                   "
                 >
-                  {{ !!task.started_at && task.completed_at ? 'Restart' : 'Start' }}
+                  {{ !!task.started_at && task.completed_at || !!task.completed_at ? 'Restart' : 'Start' }}
                 </button>
                 <button
                   :disabled="!!task.completed_at"
