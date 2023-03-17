@@ -210,10 +210,16 @@
               </div>
               <div>
                 <button
-                  class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-                  @click="() => taskList.start(task)"
+                  :disabled="!!task.started_at && !task.completed_at"
+                  class="disabled:bg-gray-500 disabled:opacity-[0.5] bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+                  @click="
+                    () => {
+                      if (!!task.started_at && !task.completed_at) return;
+                      taskList.start(task);
+                    }
+                  "
                 >
-                  Start
+                  {{ !!task.started_at && task.completed_at ? 'Copy' : 'Start' }}
                 </button>
                 <button
                   class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
