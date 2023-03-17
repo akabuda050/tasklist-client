@@ -2,7 +2,18 @@
   <div class="flex items-center justify-center h-screen">
     <div class="flex flex-col mx-auto justify-start">
       <h1 class="text-lg font-bold mb-2">{{ !showRegistration ? 'Login' : 'Register' }}</h1>
-      <form class="min-w-[350px] bg-white shadow py-5 px-6" @submit.prevent="() => {}">
+      <form
+        class="min-w-[350px] bg-white shadow py-5 px-6"
+        @submit.prevent="
+          () => {
+            if (showRegistration) {
+              signUp();
+            } else {
+              signIn();
+            }
+          }
+        "
+      >
         <div>
           <label for="username" class="block text-sm font-medium text-slate-700">Username</label>
           <div class="mt-1 mb-2">
@@ -39,7 +50,8 @@
         </div>
         <div class="flex justify-between mt-6">
           <button
-            @click="
+            type="button"
+            @click.prevent="
               () => {
                 showRegistration = !showRegistration;
               }
@@ -49,15 +61,7 @@
             {{ showRegistration ? 'Login' : 'Register' }}
           </button>
           <button
-            @click="
-              () => {
-                if (showRegistration) {
-                  signUp();
-                } else {
-                  signIn();
-                }
-              }
-            "
+            type="submit"
             class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
           >
             {{ showRegistration ? 'Sign Up' : 'Sign In' }}
