@@ -27,5 +27,12 @@ onBeforeMount(() => {
         </div>
       </div>
     </template>
+    <template v-else>
+      <div class="flex items-center justify-center h-screen">
+        <div class="flex flex-col mx-auto justify-start">
+          <h1 class="text-lg font-bold">Welcome</h1>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
