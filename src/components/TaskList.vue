@@ -1,10 +1,10 @@
 <template>
-  <div class="h-full relative">
+  <div class="bg-white h-full mx-auto relative">
     <div
       v-if="formOppened"
       tabindex="-1"
       aria-hidden="true"
-      class="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
+      class="flex items-center justify-center fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
     >
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
       <div class="relative min-w-[325px] max-w-[500px] mx-auto">
@@ -39,7 +39,11 @@
             <form
               @submit.prevent="
                 () => {
-                  taskList.add(socket, taskName);
+                  if (!taskName) {
+                    missingName('Enter task name!');
+                    return;
+                  }
+                  taskList.add(taskName);
                   formOppened = false;
                   taskName = '';
                 }
@@ -54,6 +58,7 @@
                     type="text"
                     name="taskName"
                     id="taskName"
+                    placeholder="Enter task name"
                     class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
                     v-model="taskName"
                   />
@@ -63,7 +68,7 @@
                 <button
                   class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
                 >
-                  Save Task
+                  Create
                 </button>
               </div>
             </form>
@@ -71,18 +76,35 @@
         </div>
       </div>
     </div>
-
-    <div class="max-w-md mx-auto bg-white shadow py-5 px-6">
-      <div class="flex items-center justify-between">
-        <h2 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Tasks:</h2>
-        <button
-          class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-          @click="() => (formOppened = true)"
-        >
-          New
-        </button>
+    <div class="sticky top-0 bg-white shadow flex flex-col rounded border-b">
+      <div class="flex items-center justify-between py-2 px-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tasks</h2>
+        <div class="flex">
+          <button
+            class="hidden bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+            @click="() => (formOppened = true)"
+          >
+            New
+          </button>
+          <button
+            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+            @click="() => (filtersOpened = !filtersOpened)"
+          >
+            Filter
+          </button>
+          <button
+            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+            @click="() => auth.logout()"
+          >
+            Logout
+          </button>
+        </div>
       </div>
-      <div class="mb-2">
+
+      <div
+        v-if="filtersOpened"
+        class="flex items-start justify-start flex-col sm:flex-row sm:items-center px-2"
+      >
         <div class="flex items-center">
           <select class="p-2 m-2 border appereance-none" v-model="filters.status">
             <option value="all">All</option>
@@ -104,50 +126,60 @@
           </select>
         </div>
       </div>
-      <div v-if="!tasksFiltered.length" class="max-w-md mx-auto bg-white shadow p-5">
-        <span class="font-semibold">There are no tasks. Add one.</span>
-      </div>
-      <div v-else class="max-w-md mx-auto bg-white overflow-hidden">
-        <ul
-          class="max-w-md max-h-[500px] pr-1.5 space-y-1 text-gray-500 list-inside dark:text-gray-400 overflow-y-auto"
-        >
-          <li
-            v-for="task in tasksFiltered"
-            :key="task.id"
-            class="flex items-center p-3 my-2 border"
+    </div>
+    <div
+      class="bg-white shadow py-2 px-6 rounded"
+      :class="[`min-h-[calc(100vh_-_${filtersOpened ? '110px' : '45px'})] `]"
+    >
+      <div class="mx-auto bg-white">
+        <div class="flex items-center justify-between mb-2">
+          <input
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Enter task name to search"
+            class="mr-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-sky-500 block w-full rounded-md sm:text-sm invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
+            v-model="search"
+          />
+          <button
+            v-if="tasksFiltered.length"
+            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
+            @click="() => (formOppened = true)"
           >
+            Create
+          </button>
+        </div>
+        <div
+          v-if="!tasksFiltered.length"
+          class="border-t min-h-[550px] max-h-[550px] pr-1.5 space-y-1 flex flex-col items-center justify-center"
+        >
+          <span class="font-semibold">There are no tasks.</span>
+          <button
+            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
+            @click="() => (formOppened = true)"
+          >
+            Create
+          </button>
+        </div>
+        <ul
+          v-else
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
+        >
+          <li v-for="task in tasksFiltered" :key="`${task.id}`" class="h-[200px] p-3 border">
             <div class="flex flex-col items-start">
               <div class="mb-2">
                 <div class="flex items-center mr-2 text-lg">
                   <h3 class="mr-2 font-semibold max-w-[300px] truncate">
-                    {{ task.id }}: {{ task.name }}
+                    {{ task.name }}
                   </h3>
-                  <svg
-                    v-if="task.completed_at"
-                    class="w-4 h-4 mr-1.5 text-green-500 dark:text-green-400 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  <svg
-                    v-else
-                    class="w-4 h-4 mr-1.5 text-gray-400 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
+                  <span
+                    class="w-3 h-3 flex-shrink-0 rounded-full"
+                    :class="{
+                      'bg-yellow-400': !!task.started_at && !task.completed_at,
+                      'bg-gray-400': !task.started_at && !task.completed_at,
+                      'bg-green-500': !!task.completed_at,
+                    }"
+                  ></span>
                 </div>
                 <div class="flex flex-col items-start mr-2 text-lg">
                   <span class="mr-2">
@@ -179,19 +211,19 @@
               <div>
                 <button
                   class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-                  @click="() => taskList.start(socket, task)"
+                  @click="() => taskList.start(task)"
                 >
                   Start
                 </button>
                 <button
                   class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-                  @click="() => taskList.complete(socket, task)"
+                  @click="() => taskList.complete(task)"
                 >
                   Complete
                 </button>
                 <button
                   class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-                  @click="() => taskList.remove(socket, task)"
+                  @click="() => taskList.remove(task)"
                 >
                   Remove
                 </button>
@@ -204,19 +236,28 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useAuth } from '@/services/auth';
+import { useWebSocket, type WebSocketEvent } from '@/services/websocket';
 import { useTasks, type Task } from '@/stores/tasks';
 import { ref, watch, computed } from 'vue';
 const taskList = useTasks();
 const taskName = ref('');
 const filters = ref({
   sort_by: 'created_at',
-  sort_dir: 'asc',
+  sort_dir: 'desc',
   status: 'all',
 });
+
+const auth = useAuth();
+const filtersOpened = ref(false);
 const formOppened = ref(false);
 
+const search = ref('');
+const missingName = (messages: string) => {
+  alert(messages);
+};
 const tasksFiltered = computed(() => {
-  return taskList.tasks.filter((t) => {
+  let tasks = taskList.tasks.filter((t) => {
     if (filters.value.status === 'in_progress') {
       return t.started_at && !t.completed_at;
     } else if (filters.value.status === 'completed') {
@@ -227,6 +268,12 @@ const tasksFiltered = computed(() => {
 
     return t.id;
   });
+
+  if (search.value) {
+    tasks = tasks.filter((t) => new RegExp(search.value).test(t.name));
+  }
+
+  return tasks;
 });
 
 const currentAt = (task: Task) => {
@@ -265,52 +312,41 @@ const completedAt = (task: Task) => {
 watch(
   () => [filters.value.status, filters.value.sort_by, filters.value.sort_dir],
   (sortFilters) => {
-    console.log(sortFilters);
     taskList.sort(sortFilters[1], sortFilters[2]);
   },
 );
 
 // Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:8080');
-let params = new URLSearchParams(window.location.search);
-const username = params.get('username');
-if (username) {
-  taskList.setUserName(username);
-
-  const interval = setInterval(() => {
-    if (socket.readyState === socket.OPEN) {
-      clearInterval(interval);
-      socket.send(
-        JSON.stringify({
-          type: 'login',
-          username,
-        }),
-      );
-    }
-  });
-}
+const webSocket = useWebSocket();
 
 // Listen for messages
-socket.addEventListener('message', (event: MessageEvent) => {
-  const data = JSON.parse(event.data);
-  if (data.type === 'error') {
-    alert(data.message);
+webSocket.subscribe((event: WebSocketEvent) => {
+  if (event.type === 'list') {
+    taskList.setList(event.data?.tasks || []);
+    taskList.sort(filters.value.sort_by, filters.value.sort_dir);
   }
 
-  if (data.type === 'list') {
-    taskList.setList(data.tasks);
+  if (event.type === 'created') {
+    taskList.addToList(event.data?.task);
   }
 
-  if (data.type === 'created') {
-    taskList.addToList(data.task);
+  if (event.type === 'updated') {
+    taskList.updateInList(event.data?.task);
   }
 
-  if (data.type === 'updated') {
-    taskList.updateInList(data.task);
-  }
-
-  if (data.type === 'deleted') {
-    taskList.deleteFromList(data.task);
+  if (event.type === 'deleted') {
+    taskList.deleteFromList(event.data?.task);
   }
 });
+
+setInterval(() => {
+  taskList.tasks = taskList.tasks.map((t) => {
+    if (t.completed_at) return t;
+
+    const timestamp = new Date().getTime();
+    t.current_at = timestamp;
+
+    return t;
+  });
+}, 1000);
 </script>

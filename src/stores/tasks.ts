@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { useWebSocket } from '@/services/websocket';
 
 export type Task = {
   id: number;
@@ -10,17 +11,12 @@ export type Task = {
   started_at: number;
   current_at: number;
   completed_at: number;
-  interval?: NodeJS.Timer;
 };
 
 export const useTasks = defineStore('tasks', () => {
+  const webSocket = useWebSocket();
+
   const tasks = ref<Task[]>([]);
-
-  const username = ref('');
-
-  function setUserName(name: string) {
-    username.value = name;
-  }
 
   function sort(sortFilter: string, sortDirection: string) {
     tasks.value.sort((a, b) => {
@@ -31,16 +27,13 @@ export const useTasks = defineStore('tasks', () => {
           return b.started_at - a.started_at;
         }
       } else if (sortFilter === 'current_at') {
+        const timestampA = a.current_at;
+        const timestampB = b.current_at;
+
         if (sortDirection == 'asc') {
-          return a.current_at - a.started_at - (b.current_at - b.started_at);
+          return timestampA - a.started_at - (timestampB - b.started_at);
         } else {
-          return b.current_at - b.started_at - (a.current_at - a.started_at);
-        }
-      } else if (sortFilter === 'created_at') {
-        if (sortDirection == 'asc') {
-          return a.created_at - b.created_at;
-        } else {
-          return b.created_at - a.created_at;
+          return timestampB - b.started_at - (timestampA - a.started_at);
         }
       } else if (sortFilter === 'completed_at') {
         if (sortDirection == 'asc') {
@@ -49,56 +42,42 @@ export const useTasks = defineStore('tasks', () => {
           return b.completed_at - a.completed_at;
         }
       } else {
-        return a.id - b.id;
+        if (sortDirection == 'asc') {
+          return a.created_at - b.created_at;
+        } else {
+          return b.created_at - a.created_at;
+        }
       }
     });
   }
 
-  function add(socket: WebSocket, name: string, project?: string, autostart?: boolean) {
+  function add(name: string, project?: string) {
     const task = {
       name: name,
+      project: project,
     };
 
-    socket.send(
-      JSON.stringify({
-        type: 'create',
-        meta: {
-          autostart,
-        },
-        task: task,
-        username: username.value,
-      }),
-    );
+    webSocket.send('create', {
+      task: task,
+    });
   }
 
-  function remove(socket: WebSocket, task: Task) {
-    socket.send(
-      JSON.stringify({
-        type: 'delete',
-        task: task,
-        username: username.value,
-      }),
-    );
+  function remove(task: Task) {
+    webSocket.send('delete', {
+      task: task,
+    });
   }
 
-  function start(socket: WebSocket, task: Task) {
-    socket.send(
-      JSON.stringify({
-        type: 'start',
-        task: task,
-        username: username.value,
-      }),
-    );
+  function start(task: Task) {
+    webSocket.send('start', {
+      task: task,
+    });
   }
 
-  function complete(socket: WebSocket, task: Task) {
-    socket.send(
-      JSON.stringify({
-        type: 'complete',
-        task: task,
-        username: username.value,
-      }),
-    );
+  function complete(task: Task) {
+    webSocket.send('complete', {
+      task: task,
+    });
   }
 
   function setList(newList: Task[]) {
@@ -132,7 +111,5 @@ export const useTasks = defineStore('tasks', () => {
     deleteFromList,
     setList,
     sort,
-    setUserName,
-    username,
   };
 });
