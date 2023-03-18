@@ -21,8 +21,7 @@ const connect = () => {
     webSocket.unsubscribe(onMissingToken);
     connecting = true;
     webSocket.connect(() => {
-      webSocket.send('list', {});
-      connecting = false;
+      checkAuth();
     });
 
     webSocket.subscribe(onMissingToken);
@@ -32,18 +31,17 @@ const connect = () => {
 const checkAuth = () => {
   auth.checkAuth().then((res: boolean) => {
     if (res) {
-      connect();
-    } else {
-      auth.logout();
+      webSocket.send('list', {});
+      connecting = false;
     }
   });
 };
 
-checkAuth();
+connect();
 
 const interval = window.setInterval(() => {
   if (!connecting) {
-    checkAuth();
+    connect();
   }
 }, 300);
 
