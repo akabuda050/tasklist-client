@@ -21,20 +21,18 @@ export function useWebSocket() {
       state.socket = new WebSocket(`wss://${window.location.hostname}:7654`);
 
       state.socket.addEventListener('open', () => {
-        alert('open');
         state.isConnected = true;
         openCallback();
       });
 
       state.socket.addEventListener('close', () => {
-        alert('close');
+        alert('disconnected');
 
         state.isConnected = false;
         state.socket = null;
       });
 
       state.socket.addEventListener('error', (error) => {
-        console.log('error after connect', error);
         alert('error');
 
         state.isConnected = false;
