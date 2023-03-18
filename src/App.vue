@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onBeforeUnmount } from 'vue';
 import Auth from './components/auth/Auth.vue';
 import TaskList from './components/TaskList.vue';
 import { useAuth } from './hooks/auth';
@@ -14,23 +15,33 @@ const onConnection = () => {
   });
 };
 
-if (!webSocket.isConnected()) {
-  webSocket.connect(onConnection);
+const onMissingToken = (message: MessageEvent) => {
+  const event = JSON.parse(message.data);
+  if (['no-token'].includes(event.data.error)) {
+    alert(event.data.message);
+    auth.logout();
+  }
+};
 
-  webSocket.subscribe((message: MessageEvent) => {
-    const event = JSON.parse(message.data);
-    if (['no-token'].includes(event.data.error)) {
-      alert(event.data.message);
-      auth.logout();
-    }
-  });
+if (!webSocket.isConnected()) {
+  webSocket.unsubscribe(onMissingToken);
+
+  webSocket.connect(onConnection);
+  webSocket.subscribe(onMissingToken);
 }
 
-setInterval(() => {
+const interval = setInterval(() => {
   if (!webSocket.isConnected()) {
+    webSocket.unsubscribe(onMissingToken);
+
     webSocket.connect(onConnection);
+    webSocket.subscribe(onMissingToken);
   }
 }, 300);
+
+onBeforeUnmount(() => {
+  clearInterval(interval);
+});
 </script>
 
 <template>

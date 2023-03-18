@@ -15,6 +15,10 @@ export type WebSocketEvent = {
   data: any;
 };
 
+setInterval(() => {
+  state.isConnected = state.socket?.readyState === WebSocket.OPEN;
+}, 300);
+
 export function useWebSocket() {
   function connect(openCallback: () => void) {
     state.socket = null;
@@ -37,10 +41,6 @@ export function useWebSocket() {
       state.isConnected = false;
       state.socket = null;
     });
-
-    setInterval(() => {
-      state.isConnected = state.socket?.readyState === WebSocket.OPEN;
-    }, 300);
   }
 
   function send(eventName: string, data: any) {
