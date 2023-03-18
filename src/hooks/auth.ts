@@ -54,10 +54,7 @@ export const useAuth = () => {
         send('list', {});
       }
     } else if (event.type === 'error') {
-      if (['no-token'].includes(event.data.error)) {
-        alert(event.data.message);
-        logout();
-      } else if (event.data.error === 'login') {
+      if (event.data.error === 'login') {
         alert(event.data.message);
       }
     }

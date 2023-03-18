@@ -16,6 +16,14 @@ const onConnection = () => {
 
 if (!webSocket.isConnected()) {
   webSocket.connect(onConnection);
+
+  webSocket.subscribe((message: MessageEvent) => {
+    const event = JSON.parse(message.data);
+    if (['no-token'].includes(event.data.error)) {
+      alert(event.data.message);
+      auth.logout();
+    }
+  });
 }
 
 setInterval(() => {
