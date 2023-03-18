@@ -17,26 +17,30 @@ export type WebSocketEvent = {
 
 export function useWebSocket() {
   function connect(openCallback: () => void) {
-    state.socket = null;
+    if (state.socket === null) {
+      state.socket = new WebSocket(`wss://${window.location.hostname}:7654`);
 
-    state.socket = new WebSocket(`wss://${window.location.hostname}:7654`);
+      state.socket.addEventListener('open', () => {
+        alert('open');
+        state.isConnected = true;
+        openCallback();
+      });
 
-    state.socket.addEventListener('open', () => {
-      state.isConnected = true;
-      openCallback();
-    });
+      state.socket.addEventListener('close', () => {
+        alert('close');
 
-    state.socket.addEventListener('close', () => {
-      state.isConnected = false;
-      state.socket = null;
-    });
+        state.isConnected = false;
+        state.socket = null;
+      });
 
-    state.socket.addEventListener('error', (error) => {
-      console.log('error after connect', error);
+      state.socket.addEventListener('error', (error) => {
+        console.log('error after connect', error);
+        alert('error');
 
-      state.isConnected = false;
-      state.socket = null;
-    });
+        state.isConnected = false;
+        state.socket = null;
+      });
+    }
   }
 
   function send(eventName: string, data: any) {
@@ -51,14 +55,6 @@ export function useWebSocket() {
 
       state.socket?.send(JSON.stringify(payload));
     }
-  }
-
-  function disconnect() {
-    if (state.isConnected) {
-      state.socket?.close();
-    }
-
-    state.socket = null;
   }
 
   function subscribe(callback: (event: MessageEvent) => void) {
@@ -84,7 +80,6 @@ export function useWebSocket() {
   return {
     isConnected,
     connect,
-    disconnect,
     subscribe,
     unsubscribe,
     send,

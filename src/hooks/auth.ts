@@ -7,7 +7,7 @@ const state = reactive({
 });
 
 export const useAuth = () => {
-  const { send, subscribe, unsubscribe, parseEvent, disconnect } = useWebSocket();
+  const { send, subscribe, unsubscribe, parseEvent } = useWebSocket();
 
   function handleRegistration(message: MessageEvent) {
     const event = parseEvent(message);

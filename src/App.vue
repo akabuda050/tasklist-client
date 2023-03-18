@@ -7,14 +7,6 @@ import { useWebSocket } from './hooks/websocket';
 const auth = useAuth();
 const webSocket = useWebSocket();
 
-const onConnection = () => {
-  auth.checkAuth().then((res: boolean) => {
-    if (res) {
-      webSocket.send('list', {});
-    }
-  });
-};
-
 const onMissingToken = (message: MessageEvent) => {
   const event = JSON.parse(message.data);
   if (['no-token'].includes(event.data.error)) {
@@ -23,25 +15,31 @@ const onMissingToken = (message: MessageEvent) => {
   }
 };
 
-let interval: number | null = null;
-
-onBeforeMount(() => {
+const connect = () => {
   if (!webSocket.isConnected()) {
     webSocket.unsubscribe(onMissingToken);
 
-    webSocket.connect(onConnection);
+    webSocket.connect(() => {
+      webSocket.send('list', {});
+    });
+
     webSocket.subscribe(onMissingToken);
   }
+};
 
-  interval = window.setInterval(() => {
-    if (!webSocket.isConnected()) {
-      webSocket.unsubscribe(onMissingToken);
-
-      webSocket.connect(onConnection);
-      webSocket.subscribe(onMissingToken);
+const checkAuth = () => {
+  auth.checkAuth().then((res: boolean) => {
+    if (res) {
+      connect();
+    } else {
+      auth.logout();
     }
-  }, 300);
-});
+  });
+};
+
+const interval = window.setInterval(() => {
+  checkAuth();
+}, 300);
 
 onBeforeUnmount(() => {
   if (interval !== null) {
