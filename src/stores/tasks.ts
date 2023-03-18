@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { useWebSocket } from '@/services/websocket';
+import { useWebSocket } from '@/hooks/websocket';
 
 export type Task = {
   id: number;
@@ -85,19 +85,21 @@ export const useTasks = defineStore('tasks', () => {
   }
 
   function addToList(task: Task) {
-    tasks.value.push(task);
+    const idx = tasks.value.findIndex((t) => t.id === task.id);
+
+    if (idx === -1) {
+      tasks.value.push(task);
+    } else {
+      tasks.value[idx] = task;
+    }
   }
 
   function deleteFromList(task: Task) {
     tasks.value = tasks.value.filter((t) => t.id !== task.id);
   }
 
-  function updateInList(newTask: Task) {
-    tasks.value = tasks.value.map((t) => {
-      if (t.id !== newTask.id) return t;
-
-      return newTask;
-    });
+  function updateInList(task: Task) {
+    addToList(task);
   }
 
   return {

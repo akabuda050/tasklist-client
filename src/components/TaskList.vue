@@ -219,7 +219,11 @@
                     }
                   "
                 >
-                  {{ !!task.started_at && task.completed_at || !!task.completed_at ? 'Restart' : 'Start' }}
+                  {{
+                    (!!task.started_at && task.completed_at) || !!task.completed_at
+                      ? 'Restart'
+                      : 'Start'
+                  }}
                 </button>
                 <button
                   :disabled="!!task.completed_at"
@@ -243,10 +247,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useAuth } from '@/services/auth';
-import { useWebSocket, type WebSocketEvent } from '@/services/websocket';
+import { useAuth } from '@/hooks/auth';
+import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, type Task } from '@/stores/tasks';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onBeforeUnmount } from 'vue';
 const taskList = useTasks();
 const taskName = ref('');
 const filters = ref({
@@ -323,11 +327,10 @@ watch(
   },
 );
 
-// Create WebSocket connection.
-const webSocket = useWebSocket();
+const websocket = useWebSocket();
+const handleTasksEvents = (message: MessageEvent) => {
+  const event = websocket.parseEvent(message);
 
-// Listen for messages
-webSocket.subscribe((event: WebSocketEvent) => {
   if (event.type === 'list') {
     taskList.setList(event.data?.tasks || []);
     taskList.sort(filters.value.sort_by, filters.value.sort_dir);
@@ -344,6 +347,12 @@ webSocket.subscribe((event: WebSocketEvent) => {
   if (event.type === 'deleted') {
     taskList.deleteFromList(event.data?.task);
   }
+};
+// Listen for messages
+websocket.subscribe(handleTasksEvents);
+
+onBeforeUnmount(() => {
+  websocket.unsubscribe(handleTasksEvents);
 });
 
 setInterval(() => {

@@ -72,7 +72,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useAuth } from '@/services/auth';
+import { useAuth } from '@/hooks/auth';
 import { ref } from 'vue';
 const auth = useAuth();
 const showRegistration = ref(false);
