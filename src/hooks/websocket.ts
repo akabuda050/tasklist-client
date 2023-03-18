@@ -17,7 +17,7 @@ export type WebSocketEvent = {
 
 export function useWebSocket() {
   function connect(openCallback: () => void) {
-    if (state.socket === null) {
+    if (!state.isConnected && state.socket === null) {
       state.socket = new WebSocket(`wss://${window.location.hostname}:7654`);
 
       state.socket.addEventListener('open', () => {

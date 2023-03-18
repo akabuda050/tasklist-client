@@ -15,12 +15,14 @@ const onMissingToken = (message: MessageEvent) => {
   }
 };
 
+let connecting = false;
 const connect = () => {
   if (!webSocket.isConnected()) {
     webSocket.unsubscribe(onMissingToken);
-
+    connecting = true;
     webSocket.connect(() => {
       webSocket.send('list', {});
+      connecting = false;
     });
 
     webSocket.subscribe(onMissingToken);
@@ -37,8 +39,12 @@ const checkAuth = () => {
   });
 };
 
+checkAuth();
+
 const interval = window.setInterval(() => {
-  checkAuth();
+  if (!connecting) {
+    checkAuth();
+  }
 }, 300);
 
 onBeforeUnmount(() => {
