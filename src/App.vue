@@ -23,8 +23,7 @@ const onMissingToken = (message: MessageEvent) => {
   }
 };
 
-// @ts-ignore
-let interval: number| null = null;
+let interval: number | null = null;
 
 onBeforeMount(() => {
   if (!webSocket.isConnected()) {
@@ -34,7 +33,7 @@ onBeforeMount(() => {
     webSocket.subscribe(onMissingToken);
   }
 
-  interval = setInterval(() => {
+  interval = window.setInterval(() => {
     if (!webSocket.isConnected()) {
       webSocket.unsubscribe(onMissingToken);
 
@@ -46,7 +45,7 @@ onBeforeMount(() => {
 
 onBeforeUnmount(() => {
   if (interval !== null) {
-    clearInterval(interval);
+    window.clearInterval(interval);
   }
 });
 </script>
