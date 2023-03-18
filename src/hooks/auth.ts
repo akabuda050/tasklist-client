@@ -73,16 +73,28 @@ export const useAuth = () => {
     }
   };
 
+  function handleLogout(message: MessageEvent) {
+    unsubscribe(handleLogout);
+    const event = parseEvent(message);
+
+    if (event.type === 'loggedout') {
+      state.isAuthenticated = false;
+      localStorage.removeItem('token');
+
+      unsubscribe(handleRegistration);
+      unsubscribe(handleLogin);
+
+      useTasks().tasks = [];
+    } else if (event.type === 'error') {
+      if (event.data.error === 'logout') {
+        alert(event.data.message);
+      }
+    }
+  }
+
   const logout = async () => {
-    state.isAuthenticated = false;
-    localStorage.removeItem('token');
-
-    unsubscribe(handleRegistration);
-    unsubscribe(handleLogin);
-
-    useTasks().tasks = [];
-
-    disconnect();
+    subscribe(handleLogout);
+    send('logout', {});
   };
 
   async function checkAuth() {
