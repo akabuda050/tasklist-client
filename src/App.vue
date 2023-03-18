@@ -23,7 +23,8 @@ const onMissingToken = (message: MessageEvent) => {
   }
 };
 
-let interval: number | null = null;
+// @ts-ignore
+let interval = null;
 
 onBeforeMount(() => {
   if (!webSocket.isConnected()) {
