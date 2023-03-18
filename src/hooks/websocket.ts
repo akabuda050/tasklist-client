@@ -40,7 +40,7 @@ export function useWebSocket() {
 
     setInterval(() => {
       state.isConnected = state.socket?.readyState === WebSocket.OPEN;
-    }, 1000);
+    }, 300);
   }
 
   function send(eventName: string, data: any) {

@@ -30,7 +30,7 @@ setInterval(() => {
   if (!webSocket.isConnected()) {
     webSocket.connect(onConnection);
   }
-}, 5000);
+}, 300);
 </script>
 
 <template>
