@@ -3,9 +3,9 @@
  * Keep track original and use it once issue resolved. Create PR with fix of heartbeat issue.
  */
 import type { Ref } from 'vue-demi';
-import { ref, watch } from 'vue-demi';
-import type { Fn, MaybeComputedRef } from '@vueuse/shared';
-import { resolveRef, tryOnScopeDispose, useIntervalFn } from '@vueuse/shared';
+import { ref } from 'vue-demi';
+import type { Fn } from '@vueuse/shared';
+import { tryOnScopeDispose, useIntervalFn } from '@vueuse/shared';
 import { useEventListener } from '@vueuse/core';
 
 export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED';
@@ -175,6 +175,8 @@ export function useWebSocket<Data = any>(): UseWebSocketReturn<Data> {
     onDisconnected: (ws: WebSocket, event: CloseEvent) => {},
     onError: (ws: WebSocket, event: Event) => {},
     onMessage: (ws: WebSocket, event: MessageEvent) => {},
+    heartbeat: false,
+    autoReconnect: false,
     immediate: true,
     autoClose: true,
     protocols: [],
