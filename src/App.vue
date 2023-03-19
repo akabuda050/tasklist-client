@@ -17,7 +17,7 @@ on((event: string, payload: any) => {
 
 const { status, send, open, reconnect } = useWebSocket();
 
-open('ws://localhost:7654', {
+open(`wss://${window.location.hostname}:7654`, {
   heartbeat: {
     message: 'ping',
     interval: 10000,
