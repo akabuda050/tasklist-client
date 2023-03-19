@@ -248,8 +248,8 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '@/hooks/auth';
-import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, type Task } from '@/stores/tasks';
+import { useEventBus } from '@vueuse/core';
 import { ref, watch, computed, onBeforeUnmount } from 'vue';
 const taskList = useTasks();
 const taskName = ref('');
@@ -257,6 +257,26 @@ const filters = ref({
   sort_by: 'created_at',
   sort_dir: 'desc',
   status: 'all',
+});
+const { on } = useEventBus<string>('default');
+
+on((event: string, payload: any) => {
+  if (event === 'list') {
+    taskList.setList(payload.data?.tasks || []);
+    taskList.sort(filters.value.sort_by, filters.value.sort_dir);
+  }
+
+  if (event === 'created') {
+    taskList.addToList(payload.data?.task);
+  }
+
+  if (event === 'updated') {
+    taskList.updateInList(payload.data?.task);
+  }
+
+  if (event === 'deleted') {
+    taskList.deleteFromList(payload.data?.task);
+  }
 });
 
 const auth = useAuth();
@@ -326,34 +346,6 @@ watch(
     taskList.sort(sortFilters[1], sortFilters[2]);
   },
 );
-
-const websocket = useWebSocket();
-const handleTasksEvents = (message: MessageEvent) => {
-  const event = websocket.parseEvent(message);
-
-  if (event.type === 'list') {
-    taskList.setList(event.data?.tasks || []);
-    taskList.sort(filters.value.sort_by, filters.value.sort_dir);
-  }
-
-  if (event.type === 'created') {
-    taskList.addToList(event.data?.task);
-  }
-
-  if (event.type === 'updated') {
-    taskList.updateInList(event.data?.task);
-  }
-
-  if (event.type === 'deleted') {
-    taskList.deleteFromList(event.data?.task);
-  }
-};
-// Listen for messages
-websocket.subscribe(handleTasksEvents);
-
-onBeforeUnmount(() => {
-  websocket.unsubscribe(handleTasksEvents);
-});
 
 setInterval(() => {
   taskList.tasks = taskList.tasks.map((t) => {

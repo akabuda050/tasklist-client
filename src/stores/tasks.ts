@@ -14,7 +14,8 @@ export type Task = {
 };
 
 export const useTasks = defineStore('tasks', () => {
-  const webSocket = useWebSocket();
+  const { send, status } = useWebSocket();
+  console.log(status);
 
   const tasks = ref<Task[]>([]);
 
@@ -57,27 +58,51 @@ export const useTasks = defineStore('tasks', () => {
       project: project,
     };
 
-    webSocket.send('create', {
-      task: task,
-    });
+    send(
+      JSON.stringify({
+        type: 'create',
+        data: {
+          task: task,
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
   }
 
   function remove(task: Task) {
-    webSocket.send('delete', {
-      task: task,
-    });
+    send(
+      JSON.stringify({
+        type: 'delete',
+        data: {
+          task: task,
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
   }
 
   function start(task: Task) {
-    webSocket.send('start', {
-      task: task,
-    });
+    send(
+      JSON.stringify({
+        type: 'start',
+        data: {
+          task: task,
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
   }
 
   function complete(task: Task) {
-    webSocket.send('complete', {
-      task: task,
-    });
+    send(
+      JSON.stringify({
+        type: 'complete',
+        data: {
+          task: task,
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
   }
 
   function setList(newList: Task[]) {

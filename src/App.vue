@@ -1,71 +1,80 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onBeforeMount } from 'vue';
+import { ref } from 'vue';
 import Auth from './components/auth/Auth.vue';
 import TaskList from './components/TaskList.vue';
-import { useAuth } from './hooks/auth';
 import { useWebSocket } from './hooks/websocket';
-const auth = useAuth();
-const webSocket = useWebSocket();
+import { useEventBus } from '@vueuse/core';
+import { useAuth } from './hooks/auth';
 
-const onMissingToken = (message: MessageEvent) => {
-  const event = JSON.parse(message.data);
-  if (['no-token'].includes(event.data.error)) {
-    alert(event.data.message);
-    auth.logout();
-  }
-};
+const retriesExided = ref(false);
+const { emit } = useEventBus<string>('default');
 
-let connecting = false;
-const connect = () => {
-  if (!webSocket.isConnected()) {
-    webSocket.unsubscribe(onMissingToken);
-    connecting = true;
-    webSocket.connect(() => {
-      checkAuth();
-    });
+const { status, open, reconnect } = useWebSocket();
 
-    webSocket.subscribe(onMissingToken);
-  }
-};
+open('ws://localhost:7654', {
+  heartbeat: {
+    message: 'ping',
+    interval: 10000,
+    pongTimeout: 2000,
+  },
+  autoReconnect: {
+    retries: 3,
+    delay: 1000,
+    onFailed() {
+      console.log('onFailed');
 
-const checkAuth = () => {
-  auth.checkAuth().then((res: boolean) => {
-    if (res) {
-      webSocket.send('list', {});
-      connecting = false;
+      retriesExided.value = true;
+    },
+  },
+  onConnected: (ws: WebSocket) => {
+    console.log('onConnected');
+
+    useAuth().checkAuth();
+  },
+  onDisconnected: (ws: WebSocket, event: CloseEvent) => {
+    console.log('onDisconnected');
+  },
+  onError: (ws: WebSocket, event: Event) => {
+    console.log('onError');
+  },
+  onMessage: (ws: WebSocket, messageEvent: MessageEvent) => {
+    if (messageEvent.data === 'pong') return;
+
+    const event = JSON.parse(messageEvent.data);
+
+    if (event?.type) {
+      emit(event.type, event);
     }
-  });
-};
-
-connect();
-
-const interval = window.setInterval(() => {
-  if (!connecting) {
-    connect();
-  }
-}, 300);
-
-onBeforeUnmount(() => {
-  if (interval !== null) {
-    window.clearInterval(interval);
-  }
+  },
 });
 </script>
 
 <template>
   <div class="container mx-auto">
-    <div v-if="!webSocket.isConnected()">
+    <div v-if="status !== 'OPEN'">
       <div class="flex items-center justify-center h-screen">
         <div class="flex flex-col mx-auto justify-start">
-          <h1 class="text-lg font-bold">Connecting...</h1>
+          <h1 class="text-lg font-bold capitalize">{{ status }}</h1>
+
+          <button
+            v-if="retriesExided"
+            @click="
+              () => {
+                retriesExided = false;
+                reconnect();
+              }
+            "
+          >
+            Reconect
+          </button>
         </div>
       </div>
     </div>
     <template v-else>
-      <TaskList v-if="auth.isAuthenticated()" />
-      <div v-else>
-        <Auth v-if="!auth.isAuthenticated()" />
-      </div>
+      {{ status }}
+
+      <TaskList v-if="useAuth().isAuthenticated()" />
+      <Auth v-else />
     </template>
   </div>
 </template>
