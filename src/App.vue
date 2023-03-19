@@ -15,7 +15,7 @@ on((event: string, payload: any) => {
   }
 });
 
-const { status, open, reconnect } = useWebSocket();
+const { status, send, open, reconnect } = useWebSocket();
 
 open('ws://localhost:7654', {
   heartbeat: {
@@ -35,7 +35,20 @@ open('ws://localhost:7654', {
   onConnected: (ws: WebSocket) => {
     console.log('onConnected');
 
-    useAuth().checkAuth();
+    useAuth()
+      .checkAuth()
+      .then((res) => {
+        if (res) {
+          send(
+            JSON.stringify({
+              type: 'list',
+              data: {
+                token: localStorage.getItem('token'),
+              },
+            }),
+          );
+        }
+      });
   },
   onDisconnected: (ws: WebSocket, event: CloseEvent) => {
     console.log('onDisconnected');

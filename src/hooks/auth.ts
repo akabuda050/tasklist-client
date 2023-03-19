@@ -87,9 +87,6 @@ export const useAuth = () => {
     send(
       JSON.stringify({
         type: 'logout',
-        data: {
-          token: localStorage.getItem('token'),
-        },
       }),
     );
   };
