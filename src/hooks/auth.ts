@@ -6,33 +6,52 @@ import { useWebSocket } from './websocket';
 const state = reactive({
   isAuthenticated: false,
 });
+const { on } = useEventBus<string>('default');
+const { send } = useWebSocket();
+
+on((event: string, payload: any) => {
+  if (event === 'loggedin' && payload?.data?.token) {
+    state.isAuthenticated = true;
+    localStorage.setItem('token', payload?.data?.token);
+
+    send(
+      JSON.stringify({
+        type: 'list',
+        data: {
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+});
+
+on((event: string, payload: any) => {
+  if (event === 'registered' && payload?.data?.token) {
+    state.isAuthenticated = true;
+    localStorage.setItem('token', payload?.data?.token);
+
+    send(
+      JSON.stringify({
+        type: 'list',
+        data: {
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+});
+
+on((event: string) => {
+  if (event === 'loggedout') {
+    state.isAuthenticated = false;
+    localStorage.removeItem('token');
+    useTasks().tasks = [];
+  }
+});
 
 export const useAuth = () => {
-  const { send } = useWebSocket();
-  const { on } = useEventBus<string>('default');
-
   const register = async (username: string, password: string, secret: string) => {
     if (username && password) {
-      on((event: string, payload: any) => {
-        if (event === 'registered' && payload?.data?.token) {
-          state.isAuthenticated = true;
-          localStorage.setItem('token', payload?.data?.token);
-
-          send(
-            JSON.stringify({
-              type: 'list',
-              data: {},
-            }),
-          );
-        }
-      });
-
-      on((event: string, payload: any) => {
-        if (event === 'error' && payload?.data?.error === 'registration') {
-          alert(payload?.data?.message);
-        }
-      });
-
       send(
         JSON.stringify({
           type: 'register',
@@ -50,26 +69,6 @@ export const useAuth = () => {
 
   const login = async (username: string, password: string) => {
     if (username && password) {
-      on((event: string, payload: any) => {
-        if (event === 'loggedin' && payload?.data?.token) {
-          state.isAuthenticated = true;
-          localStorage.setItem('token', payload?.data?.token);
-
-          send(
-            JSON.stringify({
-              type: 'list',
-              data: {},
-            }),
-          );
-        }
-      });
-
-      on((event: string, payload: any) => {
-        if (event === 'error' && payload?.data?.error === 'login') {
-          alert(payload?.data?.message);
-        }
-      });
-
       send(
         JSON.stringify({
           type: 'login',
@@ -85,24 +84,12 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    on((event: string) => {
-      if (event === 'loggedout') {
-        state.isAuthenticated = false;
-        localStorage.removeItem('token');
-        useTasks().tasks = [];
-      }
-    });
-
-    on((event: string, payload: any) => {
-      if (event === 'error' && payload?.data?.error === 'logout') {
-        alert(payload?.data?.message);
-      }
-    });
-
     send(
       JSON.stringify({
         type: 'logout',
-        data: {},
+        data: {
+          token: localStorage.getItem('token'),
+        },
       }),
     );
   };

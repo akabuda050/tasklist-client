@@ -7,7 +7,13 @@ import { useEventBus } from '@vueuse/core';
 import { useAuth } from './hooks/auth';
 
 const retriesExided = ref(false);
-const { emit } = useEventBus<string>('default');
+const { on, emit } = useEventBus<string>('default');
+
+on((event: string, payload: any) => {
+  if (event === 'error') {
+    alert(payload?.data?.message);
+  }
+});
 
 const { status, open, reconnect } = useWebSocket();
 
@@ -71,8 +77,6 @@ open('ws://localhost:7654', {
       </div>
     </div>
     <template v-else>
-      {{ status }}
-
       <TaskList v-if="useAuth().isAuthenticated()" />
       <Auth v-else />
     </template>
