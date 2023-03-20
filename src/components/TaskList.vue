@@ -362,6 +362,8 @@ const currentAt = (task: Task) => {
   );
   const seconds = Math.floor(((sourceTimestamp - task.started_at) % (1000 * 60)) / 1000);
 
+  if (days < 0 || hours < 0 || minutes || 0 || seconds < 0) return '0s';
+
   return `${days ? days + 'd ' : ''}${hours ? hours + 'h ' : ''}${minutes ? minutes + 'm ' : ''}${
     seconds + 's'
   }`;
