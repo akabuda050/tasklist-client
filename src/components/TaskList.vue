@@ -318,7 +318,7 @@ on((event: string, payload: any) => {
 });
 
 const auth = useAuth();
-const filtersOpened = ref(false);
+const filtersOpened = ref(true);
 const formOppened = ref(false);
 
 const search = ref('');
