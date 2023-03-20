@@ -196,22 +196,32 @@
             :key="`${task.id}`"
             class="bg-white h-[200px] p-3 border rounded-lg shadow"
           >
-            <div class="flex flex-col items-start">
-              <div class="mb-2">
-                <div class="flex items-center mr-2 text-lg">
-                  <h3 class="mr-2 font-semibold max-w-[300px] truncate">
-                    {{ task.name }}
-                  </h3>
-                  <span
-                    class="w-3 h-3 flex-shrink-0 rounded-full"
-                    :class="{
-                      'bg-yellow-400': !!task.started_at && !task.completed_at,
-                      'bg-gray-400': !task.started_at && !task.completed_at,
-                      'bg-green-500': !!task.completed_at,
-                    }"
-                  ></span>
+            <div class="flex flex-col items-start h-full">
+              <div class="flex flex-col w-full mb-2 h-full">
+                <div class="flex items-center justify-between text-lg">
+                  <div class="flex items-center">
+                    <h3 class="font-semibold max-w-[300px] truncate mr-2">
+                      {{ task.name }}
+                    </h3>
+                    <span
+                      class="w-3 h-3 flex-shrink-0 rounded-full"
+                      :class="{
+                        'bg-yellow-400': !!task.started_at && !task.completed_at,
+                        'bg-gray-400': !task.started_at && !task.completed_at,
+                        'bg-green-500': !!task.completed_at,
+                      }"
+                    ></span>
+                  </div>
+                  <button
+                    :disabled="status !== 'OPEN'"
+                    class="disabled:text-gray-200 text-red-500 hover:text-red-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                    title="Remove"
+                    @click="() => taskList.remove(task)"
+                  >
+                    <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
+                  </button>
                 </div>
-                <div class="flex flex-col items-start mr-2 text-lg">
+                <div class="flex flex-col items-start text-lg">
                   <span class="mr-2">
                     <span class="text-sm font-semibold"
                       >Created at:
@@ -230,18 +240,19 @@
                       <span class="text-sm font-normal">{{ completedAt(task) }}</span>
                     </span>
                   </span>
-                  <span class="mr-2">
-                    <span class="text-sm font-semibold"
-                      >Spent time:
-                      <span class="text-sm font-normal"> {{ currentAt(task) }}</span>
-                    </span>
-                  </span>
                 </div>
               </div>
               <div class="w-full flex items-center justify-between">
+                <span class="mr-2">
+                  <span class="text-sm font-semibold"
+                    >Spent time:
+                    <span class="text-sm font-normal"> {{ currentAt(task) }}</span>
+                  </span>
+                </span>
                 <button
-                  :disabled="(!!task.started_at && !task.completed_at) || status !== 'OPEN'"
-                  class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
+                  v-if="!task.started_at || task.completed_at"
+                  :disabled="status !== 'OPEN'"
+                  class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
                   @click="
                     () => {
                       if (!!task.started_at && !task.completed_at) return;
@@ -258,21 +269,13 @@
                 </button>
 
                 <button
-                  :disabled="!!task.completed_at || status !== 'OPEN'"
-                  class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
+                  v-else-if="!task.completed_at"
+                  :disabled="status !== 'OPEN'"
+                  class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
                   title="Complete"
                   @click="() => taskList.complete(task)"
                 >
                   <FontAwesomeIcon icon="fa-solid fa-flag-checkered" size="xl"></FontAwesomeIcon>
-                </button>
-
-                <button
-                  :disabled="status !== 'OPEN'"
-                  class="disabled:text-gray-200 text-red-500 hover:text-red-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
-                  title="Remove"
-                  @click="() => taskList.remove(task)"
-                >
-                  <FontAwesomeIcon icon="fa-solid fa-trash" size="xl"></FontAwesomeIcon>
                 </button>
               </div>
             </div>
