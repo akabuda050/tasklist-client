@@ -238,7 +238,7 @@
                   </span>
                 </div>
               </div>
-              <div>
+              <div class="w-full flex items-center justify-between">
                 <button
                   :disabled="(!!task.started_at && !task.completed_at) || status !== 'OPEN'"
                   class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
@@ -254,7 +254,7 @@
                       : 'Start'
                   "
                 >
-                  <FontAwesomeIcon icon="fa-regular fa-circle-play" size="lg"></FontAwesomeIcon>
+                  <FontAwesomeIcon icon="fa-regular fa-circle-play" size="xl"></FontAwesomeIcon>
                 </button>
 
                 <button
@@ -263,7 +263,7 @@
                   title="Complete"
                   @click="() => taskList.complete(task)"
                 >
-                  <FontAwesomeIcon icon="fa-solid fa-flag-checkered" size="lg"></FontAwesomeIcon>
+                  <FontAwesomeIcon icon="fa-solid fa-flag-checkered" size="xl"></FontAwesomeIcon>
                 </button>
 
                 <button
@@ -272,7 +272,7 @@
                   title="Remove"
                   @click="() => taskList.remove(task)"
                 >
-                  <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
+                  <FontAwesomeIcon icon="fa-solid fa-trash" size="xl"></FontAwesomeIcon>
                 </button>
               </div>
             </div>
