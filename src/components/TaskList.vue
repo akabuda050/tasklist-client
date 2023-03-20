@@ -176,7 +176,7 @@
       <div class="mx-auto">
         <div
           v-if="!tasksFiltered.length"
-          class="h-[calc(100vh-150px)] border-t pr-1.5 space-y-1 flex flex-col items-center justify-center"
+          class="h-[calc(100vh-200px)] border-t pr-1.5 space-y-1 flex flex-col items-center justify-center"
         >
           <button
             title="Add"
