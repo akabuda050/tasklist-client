@@ -81,8 +81,8 @@
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center justify-between">
           <FontAwesomeIcon
-            icon="fa-solid fa-globe"
-            :spin-pulse="status === 'CONNECTING'"
+            icon="fa-solid fa-wifi"
+            :beat="status === 'CONNECTING'"
             size="xl"
             :class="{
               'text-yellow-400': status === 'CONNECTING',

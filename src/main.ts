@@ -22,6 +22,7 @@ import {
   faArrowUpWideShort,
   faFilterCircleXmark,
   faArrowRotateRight,
+  faWifi,
 } from '@fortawesome/free-solid-svg-icons';
 import { faCirclePlay } from '@fortawesome/free-regular-svg-icons';
 
@@ -39,6 +40,7 @@ library.add(
   faArrowDownWideShort,
   faFilterCircleXmark,
   faArrowRotateRight,
+  faWifi,
 );
 
 const app = createApp(App);

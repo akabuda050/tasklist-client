@@ -1,11 +1,11 @@
 <template>
   <div class="flex items-center justify-center h-screen">
     <div class="flex flex-col mx-auto justify-start">
-      <div class="flex items-center py-2 px-1">
+      <div class="flex items-center justify-between py-2 px-1">
         <h1 class="text-lg font-bold mr-2">{{ !showRegistration ? 'Login' : 'Register' }}</h1>
         <font-awesome-icon
-          icon="fa-solid fa-globe"
-          :spin-pulse="status === 'CONNECTING'"
+            icon="fa-solid fa-wifi"
+            :beat="status === 'CONNECTING'"
           :class="{
             'text-yellow-400': status === 'CONNECTING',
             'text-green-400': status === 'OPEN',
