@@ -18,7 +18,7 @@ on((event: string, payload: any) => {
 const { send, open, reconnect } = useWebSocket();
 document.cookie = 'X-Authorization=TEST; path=/';
 
-open(`ws://${window.location.hostname}:7654`, {
+open(`wss://${window.location.hostname}:7654`, {
   heartbeat: {
     message: 'ping',
     interval: 10000,
