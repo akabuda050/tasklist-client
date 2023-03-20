@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { useWebSocket } from '@/hooks/websocket';
+import { useTimestamp } from '@vueuse/core';
 
 export type Task = {
   id: number;
@@ -9,13 +10,13 @@ export type Task = {
   created_at: number;
 
   started_at: number;
-  current_at: number;
   completed_at: number;
 };
 
+const timestamp = useTimestamp();
+
 export const useTasks = defineStore('tasks', () => {
-  const { send, status } = useWebSocket();
-  console.log(status);
+  const { send } = useWebSocket();
 
   const tasks = ref<Task[]>([]);
 
@@ -28,8 +29,8 @@ export const useTasks = defineStore('tasks', () => {
           return b.started_at - a.started_at;
         }
       } else if (sortFilter === 'current_at') {
-        const timestampA = a.current_at;
-        const timestampB = b.current_at;
+        const timestampA = a.completed_at || timestamp.value;
+        const timestampB = a.completed_at || timestamp.value;
 
         if (sortDirection == 'asc') {
           return timestampA - a.started_at - (timestampB - b.started_at);

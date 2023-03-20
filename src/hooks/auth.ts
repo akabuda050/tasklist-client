@@ -84,11 +84,17 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    send(
+    const sent = send(
       JSON.stringify({
         type: 'logout',
       }),
     );
+
+    if (sent) {
+      state.isAuthenticated = false;
+      localStorage.removeItem('token');
+      useTasks().tasks = [];
+    }
   };
 
   async function checkAuth() {

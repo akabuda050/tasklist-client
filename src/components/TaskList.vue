@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white h-full mx-auto relative">
+  <div class="h-full mx-auto relative">
     <div
       v-if="formOppened"
       tabindex="-1"
@@ -59,14 +59,15 @@
                     name="taskName"
                     id="taskName"
                     placeholder="Enter task name"
-                    class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
+                    class="px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-teal-500 focus:ring-teal-500 block w-full rounded-md sm:text-sm focus:ring-1 invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
                     v-model="taskName"
                   />
                 </div>
               </div>
               <div class="mt-6 text-right">
                 <button
-                  class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
+                  type="submit"
+                  class="bg-teal-500 hover:bg-teal-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
                 >
                   Create
                 </button>
@@ -76,37 +77,45 @@
         </div>
       </div>
     </div>
-    <div class="sticky top-0 bg-white shadow flex flex-col rounded border-b">
-      <div class="flex items-center justify-between py-2 px-4">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Tasks</h2>
+    <div class="sticky top-0 bg-white shadow flex flex-col rounded border-b z-10 py-2 px-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between">
+          <FontAwesomeIcon
+            icon="fa-solid fa-globe"
+            :spin-pulse="status === 'CONNECTING'"
+            size="xl"
+            :class="{
+              'text-yellow-400': status === 'CONNECTING',
+              'text-green-400': status === 'OPEN',
+              'text-red-500': status === 'CLOSED',
+            }"
+          />
+        </div>
         <div class="flex">
           <button
-            class="hidden bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
-            @click="() => (formOppened = true)"
-          >
-            New
-          </button>
-          <button
-            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+            title="Filter"
+            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-4 enabled:cursor-pointer"
             @click="() => (filtersOpened = !filtersOpened)"
           >
-            Filter
+            <FontAwesomeIcon icon="fa-solid fa-filter" size="xl" />
           </button>
           <button
-            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+            :disabled="status !== 'OPEN'"
+            title="Logout"
+            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 border-2 disabled:border-gray-500 border-teal-500 hover:border-teal-700 rounded-[5px]"
             @click="() => auth.logout()"
           >
-            Logout
+            <FontAwesomeIcon icon="fa-solid fa-person-running" size="xl" />
           </button>
         </div>
       </div>
 
-      <div
-        v-if="filtersOpened"
-        class="flex items-start justify-start flex-col sm:flex-row sm:items-center px-2"
-      >
+      <div v-if="filtersOpened" class="flex items-center justify-between flex-row mb-2">
         <div class="flex items-center">
-          <select class="p-2 m-2 border appereance-none" v-model="filters.status">
+          <select
+            class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
+            v-model="filters.status"
+          >
             <option value="all">All</option>
             <option value="pending">Unstarted</option>
             <option value="in_progress">In Progress</option>
@@ -114,58 +123,76 @@
           </select>
         </div>
         <div class="flex items-center">
-          <select class="p-2 m-2 border appereance-none" v-model="filters.sort_by">
+          <select
+            class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
+            v-model="filters.sort_by"
+          >
             <option value="created_at">Sort by created</option>
             <option value="started_at">Sort by started</option>
             <option value="completed_at">Sort by completed</option>
             <option value="current_at">Sort by time taken</option>
           </select>
-          <select class="p-2 m-2 border appereance-none" v-model="filters.sort_dir">
-            <option value="asc">Asc</option>
-            <option value="desc">Desc</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div
-      class="bg-white shadow py-2 px-6 rounded"
-      :class="[`min-h-[calc(100vh_-_${filtersOpened ? '110px' : '45px'})] `]"
-    >
-      <div class="mx-auto bg-white">
-        <div class="flex items-center justify-between mb-2">
-          <input
-            type="text"
-            name="search"
-            id="search"
-            placeholder="Enter task name to search"
-            class="mr-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-sky-500 block w-full rounded-md sm:text-sm invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
-            v-model="search"
-          />
+
           <button
-            v-if="tasksFiltered.length"
-            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
-            @click="() => (formOppened = true)"
+            :disabled="status !== 'OPEN'"
+            title="Logout"
+            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px]"
+            @click="() => (filters.sort_dir = filters.sort_dir === 'asc' ? 'desc' : 'asc')"
           >
-            Create
+            <FontAwesomeIcon
+              :icon="`fa-solid ${
+                filters.sort_dir === 'asc' ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-wide-short'
+              }`"
+              size="xl"
+            />
           </button>
         </div>
+      </div>
+
+      <div v-if="filtersOpened" class="flex items-center justify-between mb-2">
+        <input
+          type="text"
+          name="search"
+          id="search"
+          placeholder="Enter task name to search"
+          class="mr-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-teal-500 block w-full rounded-md sm:text-sm invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
+          v-model="search"
+        />
+
+        <button
+          title="Add"
+          :disabled="status !== 'OPEN'"
+          class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-2 enabled:cursor-pointer"
+          @click="() => (formOppened = true)"
+        >
+          <FontAwesomeIcon icon="fa-solid fa-circle-plus" size="xl" />
+        </button>
+      </div>
+    </div>
+    <div class="py-2 px-6 rounded" :class="{ 'opacity-50': status !== 'OPEN' }">
+      <div class="mx-auto">
         <div
           v-if="!tasksFiltered.length"
-          class="border-t min-h-[550px] max-h-[550px] pr-1.5 space-y-1 flex flex-col items-center justify-center"
+          class="h-[calc(100vh-150px)] border-t pr-1.5 space-y-1 flex flex-col items-center justify-center"
         >
-          <span class="font-semibold">There are no tasks.</span>
           <button
-            class="bg-sky-500 hover:bg-sky-700 px-2 py-1 text-sm leading-5 rounded-md font-semibold text-white"
+            title="Add"
+            :disabled="status !== 'OPEN'"
+            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
             @click="() => (formOppened = true)"
           >
-            Create
+            <FontAwesomeIcon icon="fa-solid fa-circle-plus" size="3x" />
           </button>
         </div>
         <ul
           v-else
-          class="min-h-[550px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
         >
-          <li v-for="task in tasksFiltered" :key="`${task.id}`" class="h-[200px] p-3 border shadow">
+          <li
+            v-for="task in tasksFiltered"
+            :key="`${task.id}`"
+            class="bg-white h-[200px] p-3 border rounded-lg shadow"
+          >
             <div class="flex flex-col items-start">
               <div class="mb-2">
                 <div class="flex items-center mr-2 text-lg">
@@ -210,33 +237,39 @@
               </div>
               <div>
                 <button
-                  :disabled="!!task.started_at && !task.completed_at"
-                  class="disabled:bg-gray-200 bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+                  :disabled="(!!task.started_at && !task.completed_at) || status !== 'OPEN'"
+                  class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
                   @click="
                     () => {
                       if (!!task.started_at && !task.completed_at) return;
                       taskList.start(task);
                     }
                   "
-                >
-                  {{
+                  :title="
                     (!!task.started_at && task.completed_at) || !!task.completed_at
                       ? 'Restart'
                       : 'Start'
-                  }}
+                  "
+                >
+                  <FontAwesomeIcon icon="fa-regular fa-circle-play" size="lg"></FontAwesomeIcon>
                 </button>
+
                 <button
-                  :disabled="!!task.completed_at"
-                  class="disabled:bg-gray-200 bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+                  :disabled="!!task.completed_at || status !== 'OPEN'"
+                  class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
+                  title="Complete"
                   @click="() => taskList.complete(task)"
                 >
-                  Complete
+                  <FontAwesomeIcon icon="fa-solid fa-flag-checkered" size="lg"></FontAwesomeIcon>
                 </button>
+
                 <button
-                  class="bg-sky-500 hover:bg-sky-700 px-2 py-1 mr-2 text-sm leading-5 rounded-md font-semibold text-white"
+                  :disabled="status !== 'OPEN'"
+                  class="disabled:text-gray-200 text-red-500 hover:text-red-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
+                  title="Remove"
                   @click="() => taskList.remove(task)"
                 >
-                  Remove
+                  <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
                 </button>
               </div>
             </div>
@@ -248,9 +281,11 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '@/hooks/auth';
+import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, type Task } from '@/stores/tasks';
-import { useEventBus } from '@vueuse/core';
-import { ref, watch, computed, onBeforeUnmount } from 'vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { useDateFormat, useEventBus, useTimestamp } from '@vueuse/core';
+import { ref, watch, computed } from 'vue';
 const taskList = useTasks();
 const taskName = ref('');
 const filters = ref({
@@ -258,6 +293,9 @@ const filters = ref({
   sort_dir: 'desc',
   status: 'all',
 });
+
+const { status } = useWebSocket();
+
 const { on } = useEventBus<string>('default');
 
 on((event: string, payload: any) => {
@@ -308,16 +346,18 @@ const tasksFiltered = computed(() => {
 });
 
 const currentAt = (task: Task) => {
-  if (!task.started_at || !task.current_at) return '0s';
+  if (!task.started_at || !timestamp.value) return '0s';
 
-  const days = Math.floor((task.current_at - task.started_at) / (1000 * 60 * 60 * 24));
+  const sourceTimestamp = task.completed_at || timestamp.value;
+
+  const days = Math.floor((sourceTimestamp - task.started_at) / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
-    ((task.current_at - task.started_at) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    ((sourceTimestamp - task.started_at) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
   );
   const minutes = Math.floor(
-    ((task.current_at - task.started_at) % (1000 * 60 * 60)) / (1000 * 60),
+    ((sourceTimestamp - task.started_at) % (1000 * 60 * 60)) / (1000 * 60),
   );
-  const seconds = Math.floor(((task.current_at - task.started_at) % (1000 * 60)) / 1000);
+  const seconds = Math.floor(((sourceTimestamp - task.started_at) % (1000 * 60)) / 1000);
 
   return `${days ? days + 'd ' : ''}${hours ? hours + 'h ' : ''}${minutes ? minutes + 'm ' : ''}${
     seconds + 's'
@@ -325,18 +365,16 @@ const currentAt = (task: Task) => {
 };
 
 const createdAt = (task: Task) => {
-  return new Date(task.created_at).toLocaleString('en-US', { timeZone: 'UTC' });
+  return useDateFormat(task.created_at, 'YYYY-MM-DD HH:mm:ss A').value;
 };
 
 const startedAt = (task: Task) => {
-  return task.started_at
-    ? new Date(task.started_at).toLocaleString('en-US', { timeZone: 'UTC' })
-    : 'N/A';
+  return task.started_at ? useDateFormat(task.started_at, 'YYYY-MM-DD HH:mm:ss A').value : 'N/A';
 };
 
 const completedAt = (task: Task) => {
   return task.completed_at
-    ? new Date(task.completed_at).toLocaleString('en-US', { timeZone: 'UTC' })
+    ? useDateFormat(task.completed_at, 'YYYY-MM-DD HH:mm:ss A').value
     : 'N/A';
 };
 
@@ -347,14 +385,5 @@ watch(
   },
 );
 
-setInterval(() => {
-  taskList.tasks = taskList.tasks.map((t) => {
-    if (t.completed_at) return t;
-
-    const timestamp = new Date().getTime();
-    t.current_at = timestamp;
-
-    return t;
-  });
-}, 1000);
+const timestamp = useTimestamp({ offset: 0 });
 </script>

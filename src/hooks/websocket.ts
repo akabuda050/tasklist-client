@@ -204,7 +204,6 @@ export function useWebSocket<Data = any>(): UseWebSocketReturn<Data> {
   };
 
   const send = (data: string | ArrayBuffer | Blob, useBuffer = true) => {
-    console.log(data);
     if (!wsRef.value || status.value !== 'OPEN') {
       if (useBuffer) bufferedData.push(data);
       return false;
@@ -258,7 +257,6 @@ export function useWebSocket<Data = any>(): UseWebSocketReturn<Data> {
     };
 
     ws.onclose = (ev) => {
-      console.log('closed');
       status.value = 'CLOSED';
       wsRef.value = undefined;
       options.onDisconnected?.(ws, ev);

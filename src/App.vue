@@ -15,9 +15,10 @@ on((event: string, payload: any) => {
   }
 });
 
-const { status, send, open, reconnect } = useWebSocket();
+const { send, open, reconnect } = useWebSocket();
+document.cookie = 'X-Authorization=TEST; path=/';
 
-open(`wss://${window.location.hostname}:7654`, {
+open(`ws://${window.location.hostname}:7654`, {
   heartbeat: {
     message: 'ping',
     interval: 10000,
@@ -66,32 +67,24 @@ open(`wss://${window.location.hostname}:7654`, {
     }
   },
 });
+
+useAuth().checkAuth();
 </script>
 
 <template>
   <div class="container mx-auto">
-    <div v-if="status !== 'OPEN'">
-      <div class="flex items-center justify-center h-screen">
-        <div class="flex flex-col mx-auto justify-start">
-          <h1 class="text-lg font-bold capitalize">{{ status }}</h1>
-
-          <button
-            v-if="retriesExided"
-            @click="
-              () => {
-                retriesExided = false;
-                reconnect();
-              }
-            "
-          >
-            Reconect
-          </button>
-        </div>
-      </div>
+    <div
+      v-if="retriesExided"
+      class="z-10 shadow bg-gray-200 flex items-center justify-center w-[70px] h-[70px] rounded-full cursor-pointer fixed bottom-[30px] right-[15px]"
+      @click="() => {
+        retriesExided = false;
+        reconnect();
+      }"
+    >
+      <font-awesome-icon icon="fa-solid fa-plug" beat size="2x" class="text-red-300" />
     </div>
-    <template v-else>
-      <TaskList v-if="useAuth().isAuthenticated()" />
-      <Auth v-else />
-    </template>
+
+    <TaskList v-if="useAuth().isAuthenticated()" />
+    <Auth v-else />
   </div>
 </template>
