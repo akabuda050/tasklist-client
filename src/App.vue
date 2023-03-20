@@ -75,15 +75,17 @@ useAuth().checkAuth();
     <div
       v-if="retriesExided"
       class="z-10 shadow bg-gray-200 flex items-center justify-center w-[70px] h-[70px] rounded-full cursor-pointer fixed bottom-[30px] right-[15px]"
-      @click="() => {
-        retriesExided = false;
-        reconnect();
-      }"
+      @click="
+        () => {
+          retriesExided = false;
+          reconnect();
+        }
+      "
     >
       <font-awesome-icon icon="fa-solid fa-plug" beat size="2x" class="text-red-300" />
     </div>
 
-    <TaskList v-if="useAuth().isAuthenticated()" />
+    <TaskList v-if="useAuth().state.isAuthenticated" />
     <Auth v-else />
   </div>
 </template>

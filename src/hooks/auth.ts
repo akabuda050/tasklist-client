@@ -3,8 +3,9 @@ import { useEventBus } from '@vueuse/core';
 import { reactive } from 'vue';
 import { useWebSocket } from './websocket';
 
-const state = reactive({
+const state = reactive<{ isAuthenticated: boolean; userName: string | null }>({
   isAuthenticated: false,
+  userName: null,
 });
 const { on } = useEventBus<string>('default');
 const { send } = useWebSocket();
@@ -12,7 +13,14 @@ const { send } = useWebSocket();
 on((event: string, payload: any) => {
   if (event === 'loggedin' && payload?.data?.token) {
     state.isAuthenticated = true;
-    localStorage.setItem('token', payload?.data?.token);
+
+    if (payload?.data?.token) {
+      localStorage.setItem('token', payload?.data?.token);
+    }
+    if (payload?.data?.username) {
+      localStorage.setItem('username', payload?.data?.username);
+      state.userName = payload?.data?.username;
+    }
 
     send(
       JSON.stringify({
@@ -28,7 +36,13 @@ on((event: string, payload: any) => {
 on((event: string, payload: any) => {
   if (event === 'registered' && payload?.data?.token) {
     state.isAuthenticated = true;
-    localStorage.setItem('token', payload?.data?.token);
+    if (payload?.data?.token) {
+      localStorage.setItem('token', payload?.data?.token);
+    }
+    if (payload?.data?.username) {
+      localStorage.setItem('username', payload?.data?.username);
+      state.userName = payload?.data?.username;
+    }
 
     send(
       JSON.stringify({
@@ -45,6 +59,9 @@ on((event: string) => {
   if (event === 'loggedout') {
     state.isAuthenticated = false;
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    state.userName = null;
+
     useTasks().tasks = [];
   }
 });
@@ -92,27 +109,30 @@ export const useAuth = () => {
 
     if (sent) {
       state.isAuthenticated = false;
+      state.userName = null;
+
       localStorage.removeItem('token');
+      localStorage.removeItem('username');
+
       useTasks().tasks = [];
     }
   };
 
   async function checkAuth() {
-    if (!localStorage.getItem('token')) {
+    if (!localStorage.getItem('token') && !localStorage.getItem('username')) {
       state.isAuthenticated = false;
+      state.userName = null;
+
       return Promise.resolve(false);
     }
 
     state.isAuthenticated = true;
+    state.userName = localStorage.getItem('username');
     return Promise.resolve(true);
   }
 
-  const isAuthenticated = () => {
-    return state.isAuthenticated;
-  };
-
   return {
-    isAuthenticated,
+    state,
     checkAuth,
     login,
     logout,
