@@ -97,7 +97,10 @@
             class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-4 enabled:cursor-pointer"
             @click="() => (filtersOpened = !filtersOpened)"
           >
-            <FontAwesomeIcon icon="fa-solid fa-filter" size="xl" />
+            <FontAwesomeIcon
+              :icon="`fa-solid ${filtersOpened ? 'fa-filter-circle-xmark' : 'fa-filter'}`"
+              size="xl"
+            />
           </button>
           <button
             :disabled="status !== 'OPEN'"

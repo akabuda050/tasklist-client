@@ -20,6 +20,7 @@ import {
   faPersonRunning,
   faArrowDownWideShort,
   faArrowUpWideShort,
+  faFilterCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { faCirclePlay } from '@fortawesome/free-regular-svg-icons';
 
@@ -35,6 +36,7 @@ library.add(
   faPersonRunning,
   faArrowUpWideShort,
   faArrowDownWideShort,
+  faFilterCircleXmark,
 );
 
 const app = createApp(App);
