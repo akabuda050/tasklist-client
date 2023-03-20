@@ -200,7 +200,7 @@
               <div class="flex flex-col w-full mb-2 h-full">
                 <div class="flex items-center justify-between text-lg">
                   <div class="flex items-center">
-                    <h3 class="font-semibold max-w-[300px] truncate mr-2">
+                    <h3 class="font-semibold max-w-[240px] truncate mr-2">
                       {{ task.name }}
                     </h3>
                     <span
