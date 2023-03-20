@@ -265,7 +265,14 @@
                       : 'Start'
                   "
                 >
-                  <FontAwesomeIcon icon="fa-regular fa-circle-play" size="xl"></FontAwesomeIcon>
+                  <FontAwesomeIcon
+                    :icon="`${
+                      (!!task.started_at && task.completed_at) || !!task.completed_at
+                        ? 'fa-solid fa-arrow-rotate-right'
+                        : 'fa-regular fa-circle-play'
+                    }`"
+                    size="xl"
+                  ></FontAwesomeIcon>
                 </button>
 
                 <button

@@ -21,6 +21,7 @@ import {
   faArrowDownWideShort,
   faArrowUpWideShort,
   faFilterCircleXmark,
+  faArrowRotateRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { faCirclePlay } from '@fortawesome/free-regular-svg-icons';
 
@@ -37,6 +38,7 @@ library.add(
   faArrowUpWideShort,
   faArrowDownWideShort,
   faFilterCircleXmark,
+  faArrowRotateRight,
 );
 
 const app = createApp(App);
