@@ -352,7 +352,9 @@ const tasksFiltered = computed(() => {
   });
 
   if (search.value) {
-    tasks = tasks.filter((t) => new RegExp(search.value).test(t.name));
+    tasks = tasks.filter((t) =>
+      new RegExp(search.value.toLocaleLowerCase()).test(t.name.toLocaleLowerCase()),
+    );
   }
 
   return tasks;
