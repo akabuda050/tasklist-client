@@ -17,10 +17,9 @@ export type Task = {
 };
 
 const timestamp = useTimestamp({ offset: 0 });
+const { send } = useWebSocket();
 
 export const useTasks = defineStore('tasks', () => {
-  const { send } = useWebSocket();
-
   const tasks = ref<Task[]>([]);
 
   function calculateElapsed(task: Task) {
