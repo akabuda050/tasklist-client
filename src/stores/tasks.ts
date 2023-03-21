@@ -25,7 +25,7 @@ export const useTasks = defineStore('tasks', () => {
 
   function calculateElapsed(task: Task) {
     const { started_at, completed_at, paused_at, elapsed } = task;
-    let totalElapsed = elapsed;
+    let totalElapsed = elapsed || 0;
     let now = timestamp.value;
 
     if (!started_at) return 0;
