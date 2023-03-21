@@ -186,7 +186,7 @@ export const useTasks = defineStore('tasks', () => {
     const idx = tasks.value.findIndex((t) => t.id === task.id);
 
     if (idx === -1) {
-      tasks.value.push(task);
+      tasks.value.unshift(task);
     } else {
       tasks.value[idx] = task;
     }
