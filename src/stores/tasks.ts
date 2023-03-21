@@ -9,39 +9,63 @@ export type Task = {
   project?: string;
   created_at: number;
 
-  started_at: number;
-  completed_at: number;
+  started_at: number | null;
+  paused_at: number | null;
+  completed_at: number | null;
+
+  elapsed: number;
 };
 
-const timestamp = useTimestamp();
+const timestamp = useTimestamp({ offset: 0 });
 
 export const useTasks = defineStore('tasks', () => {
   const { send } = useWebSocket();
 
   const tasks = ref<Task[]>([]);
 
+  function calculateElapsed(task: Task) {
+    const { started_at, completed_at, paused_at, elapsed } = task;
+    let totalElapsed = elapsed;
+    let now = timestamp.value;
+
+    if (!started_at) return 0;
+
+    if (paused_at) {
+      totalElapsed = paused_at - started_at;
+      now = paused_at;
+    }
+
+    if (completed_at) {
+      totalElapsed = elapsed;
+    } else {
+      totalElapsed = now - elapsed - started_at;
+    }
+
+    return totalElapsed;
+  }
+
   function sort(sortFilter: string, sortDirection: string) {
     tasks.value.sort((a, b) => {
       if (sortFilter === 'started_at') {
         if (sortDirection == 'asc') {
-          return a.started_at - b.started_at;
+          return (a.started_at || 0) - (b.started_at || 0);
         } else {
-          return b.started_at - a.started_at;
+          return (b.started_at || 0) - (a.started_at || 0);
         }
       } else if (sortFilter === 'current_at') {
-        const timestampA = a.completed_at || timestamp.value;
-        const timestampB = a.completed_at || timestamp.value;
+        const elapsedA = calculateElapsed(a);
+        const elapsedB = calculateElapsed(b);
 
         if (sortDirection == 'asc') {
-          return timestampA - a.started_at - (timestampB - b.started_at);
+          return elapsedA - elapsedB;
         } else {
-          return timestampB - b.started_at - (timestampA - a.started_at);
+          return elapsedB - elapsedA;
         }
       } else if (sortFilter === 'completed_at') {
         if (sortDirection == 'asc') {
-          return a.completed_at - b.completed_at;
+          return (a.completed_at || 0) - (b.completed_at || 0);
         } else {
-          return b.completed_at - a.completed_at;
+          return (b.completed_at || 0) - (a.completed_at || 0);
         }
       } else {
         if (sortDirection == 'asc') {
@@ -75,7 +99,9 @@ export const useTasks = defineStore('tasks', () => {
       JSON.stringify({
         type: 'delete',
         data: {
-          task: task,
+          task: {
+            id: task.id,
+          },
           token: localStorage.getItem('token'),
         },
       }),
@@ -87,7 +113,51 @@ export const useTasks = defineStore('tasks', () => {
       JSON.stringify({
         type: 'start',
         data: {
-          task: task,
+          task: {
+            id: task.id,
+          },
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+
+  function pause(task: Task) {
+    send(
+      JSON.stringify({
+        type: 'pause',
+        data: {
+          task: {
+            id: task.id,
+          },
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+
+  function resume(task: Task) {
+    send(
+      JSON.stringify({
+        type: 'resume',
+        data: {
+          task: {
+            id: task.id,
+          },
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+
+  function restart(task: Task) {
+    send(
+      JSON.stringify({
+        type: 'restart',
+        data: {
+          task: {
+            id: task.id,
+          },
           token: localStorage.getItem('token'),
         },
       }),
@@ -99,7 +169,9 @@ export const useTasks = defineStore('tasks', () => {
       JSON.stringify({
         type: 'complete',
         data: {
-          task: task,
+          task: {
+            id: task.id,
+          },
           token: localStorage.getItem('token'),
         },
       }),
@@ -133,11 +205,15 @@ export const useTasks = defineStore('tasks', () => {
     add,
     remove,
     start,
+    pause,
+    resume,
+    restart,
     complete,
     addToList,
     updateInList,
     deleteFromList,
     setList,
     sort,
+    calculateElapsed,
   };
 });

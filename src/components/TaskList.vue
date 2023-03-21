@@ -10,31 +10,31 @@
       <div class="relative min-w-[325px] max-w-[500px] mx-auto">
         <!-- Modal content -->
         <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <button
-              type="button"
-              class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
-              @click="
-                () => {
-                  formOppened = false;
-                  taskName = '';
-                }
-              "
+          <button
+            type="button"
+            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+            @click="
+              () => {
+                formOppened = false;
+                taskName = '';
+              }
+            "
+          >
+            <svg
+              aria-hidden="true"
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg
-                aria-hidden="true"
-                class="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <span class="sr-only">Close modal</span>
-            </button>
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
           <div class="px-6 py-6 lg:px-8">
             <form
               @submit.prevent="
@@ -175,7 +175,7 @@
         </button>
       </div>
     </div>
-    <div class="py-2 px-6 rounded" :class="{ 'opacity-50': status !== 'OPEN' }">
+    <div class="py-2 px-3 rounded" :class="{ 'opacity-50': status !== 'OPEN' }">
       <div class="mx-auto">
         <div
           v-if="!tasksFiltered.length"
@@ -197,11 +197,11 @@
           <li
             v-for="task in tasksFiltered"
             :key="`${task.id}`"
-            class="bg-white h-[200px] p-3 border rounded-lg shadow"
+            class="bg-white min-h-[200px] p-3 border rounded-lg shadow"
           >
             <div class="flex flex-col items-start h-full">
-              <div class="flex flex-col w-full mb-2 h-full">
-                <div class="flex items-center justify-between text-lg">
+              <div class="flex flex-col w-full mb-2 h-full border-b">
+                <div class="flex items-center justify-between text-lg border-b pb-1 mb-2">
                   <div class="flex items-center">
                     <h3 class="font-semibold max-w-[240px] truncate mr-2">
                       {{ task.name }}
@@ -224,25 +224,17 @@
                     <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
                   </button>
                 </div>
-                <div class="flex flex-col items-start text-lg">
-                  <span class="mr-2">
-                    <span class="text-sm font-semibold"
-                      >Created at:
-                      <span class="text-sm font-normal">{{ createdAt(task) }}</span>
-                    </span>
-                  </span>
-                  <span class="mr-2">
-                    <span class="text-sm font-semibold"
-                      >Started at:
-                      <span class="text-sm font-normal">{{ startedAt(task) }}</span>
-                    </span>
-                  </span>
-                  <span class="mr-2">
-                    <span class="text-sm font-semibold"
-                      >Completed at:
-                      <span class="text-sm font-normal">{{ completedAt(task) }}</span>
-                    </span>
-                  </span>
+                <div class="flex items-start text-lg gap-2">
+                  <div class="flex flex-col items-start gap-2">
+                    <span class="text-sm font-semibold">Created: </span>
+                    <span class="text-sm font-semibold">Started: </span>
+                    <span class="text-sm font-semibold">Completed: </span>
+                  </div>
+                  <div class="flex flex-col items-start gap-2">
+                    <span class="text-sm font-normal">{{ createdAt(task) }}</span>
+                    <span class="text-sm font-normal">{{ startedAt(task) }}</span>
+                    <span class="text-sm font-normal">{{ completedAt(task) }}</span>
+                  </div>
                 </div>
               </div>
               <div class="w-full flex items-center justify-between">
@@ -252,41 +244,65 @@
                     <span class="text-sm font-normal"> {{ currentAt(task) }}</span>
                   </span>
                 </span>
-                <button
-                  v-if="!task.started_at || task.completed_at"
-                  :disabled="status !== 'OPEN'"
-                  class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
-                  @click="
-                    () => {
-                      if (!!task.started_at && !task.completed_at) return;
-                      taskList.start(task);
-                    }
-                  "
-                  :title="
-                    (!!task.started_at && task.completed_at) || !!task.completed_at
-                      ? 'Restart'
-                      : 'Start'
-                  "
-                >
-                  <FontAwesomeIcon
-                    :icon="`${
-                      (!!task.started_at && task.completed_at) || !!task.completed_at
-                        ? 'fa-solid fa-arrow-rotate-right'
-                        : 'fa-regular fa-circle-play'
-                    }`"
-                    size="xl"
-                  ></FontAwesomeIcon>
-                </button>
 
-                <button
-                  v-else-if="!task.completed_at"
-                  :disabled="status !== 'OPEN'"
-                  class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
-                  title="Complete"
-                  @click="() => taskList.complete(task)"
-                >
-                  <FontAwesomeIcon icon="fa-solid fa-flag-checkered" size="xl"></FontAwesomeIcon>
-                </button>
+                <div class="flex items-center justify-end gap-2">
+                  <template v-if="!task.completed_at">
+                    <button
+                      v-if="!task.started_at && !task.paused_at"
+                      :disabled="status !== 'OPEN'"
+                      class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                      title="Start"
+                      @click="() => taskList.start(task)"
+                    >
+                      <FontAwesomeIcon icon="fa-regular fa-circle-play" size="xl"></FontAwesomeIcon>
+                    </button>
+                    <button
+                      v-if="task.started_at && !task.paused_at"
+                      :disabled="status !== 'OPEN'"
+                      class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                      title="Pause"
+                      @click="() => taskList.pause(task)"
+                    >
+                      <FontAwesomeIcon
+                        icon="fa-regular fa-circle-pause"
+                        size="xl"
+                      ></FontAwesomeIcon>
+                    </button>
+                    <button
+                      v-if="task.started_at && task.paused_at"
+                      :disabled="status !== 'OPEN'"
+                      class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                      title="Resume"
+                      @click="() => taskList.resume(task)"
+                    >
+                      <FontAwesomeIcon icon="fa-regular fa-circle-play" size="xl"></FontAwesomeIcon>
+                    </button>
+                    <button
+                      :disabled="status !== 'OPEN'"
+                      class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                      title="Complete"
+                      @click="() => taskList.complete(task)"
+                    >
+                      <FontAwesomeIcon
+                        icon="fa-solid fa-flag-checkered"
+                        size="xl"
+                      ></FontAwesomeIcon>
+                    </button>
+                  </template>
+                  <template v-if="task.completed_at">
+                    <button
+                      :disabled="status !== 'OPEN'"
+                      class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+                      title="Restart"
+                      @click="() => taskList.restart(task)"
+                    >
+                      <FontAwesomeIcon
+                        icon="fa-solid fa-arrow-rotate-right"
+                        size="xl"
+                      ></FontAwesomeIcon>
+                    </button>
+                  </template>
+                </div>
               </div>
             </div>
           </li>
@@ -363,19 +379,15 @@ const tasksFiltered = computed(() => {
   return tasks;
 });
 
+const timestamp = useTimestamp({ offset: 0 });
+
 const currentAt = (task: Task) => {
-  if (!task.started_at || !timestamp.value) return '0s';
+  const totalElapsed = taskList.calculateElapsed(task);
 
-  const sourceTimestamp = task.completed_at || timestamp.value;
-
-  const days = Math.floor((sourceTimestamp - task.started_at) / (1000 * 60 * 60 * 24));
-  const hours = Math.floor(
-    ((sourceTimestamp - task.started_at) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-  );
-  const minutes = Math.floor(
-    ((sourceTimestamp - task.started_at) % (1000 * 60 * 60)) / (1000 * 60),
-  );
-  const seconds = Math.floor(((sourceTimestamp - task.started_at) % (1000 * 60)) / 1000);
+  const days = Math.floor(totalElapsed / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((totalElapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((totalElapsed % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((totalElapsed % (1000 * 60)) / 1000);
 
   if (days < 0 || hours < 0 || minutes < 0 || seconds < 0) return '0s';
 
@@ -385,17 +397,15 @@ const currentAt = (task: Task) => {
 };
 
 const createdAt = (task: Task) => {
-  return useDateFormat(task.created_at, 'YYYY-MM-DD HH:mm:ss A').value;
+  return useDateFormat(task.created_at, 'MM/DD/YY HH:mm:ss A').value;
 };
 
 const startedAt = (task: Task) => {
-  return task.started_at ? useDateFormat(task.started_at, 'YYYY-MM-DD HH:mm:ss A').value : 'N/A';
+  return task.started_at ? useDateFormat(task.started_at, 'MM/DD/YY HH:mm:ss A').value : '-';
 };
 
 const completedAt = (task: Task) => {
-  return task.completed_at
-    ? useDateFormat(task.completed_at, 'YYYY-MM-DD HH:mm:ss A').value
-    : 'N/A';
+  return task.completed_at ? useDateFormat(task.completed_at, 'MM/DD/YY HH:mm:ss A').value : '-';
 };
 
 watch(
@@ -404,6 +414,4 @@ watch(
     taskList.sort(sortFilters[1], sortFilters[2]);
   },
 );
-
-const timestamp = useTimestamp({ offset: 0 });
 </script>
