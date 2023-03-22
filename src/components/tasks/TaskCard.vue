@@ -133,7 +133,7 @@ import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, priorityMap, type Task } from '@/stores/tasks';
 import { onClickOutside } from '@vueuse/core';
 import { useDateFormat } from '@vueuse/shared';
-import { computed, nextTick, ref, watch, type PropType } from 'vue';
+import { computed, ref, type PropType } from 'vue';
 
 const props = defineProps({
   task: {
