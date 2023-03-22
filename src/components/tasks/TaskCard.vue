@@ -39,12 +39,35 @@
     </div>
     <div class="w-full flex items-center justify-between">
       <div
-        class="flex items-center justify-center py-1 px-2 rounded-lg"
-        :class="priorityMap[task.priority || 'low'].colorsClasses"
+        class="flex items-center justify-center text-left px-2 rounded-lg text-sm capitalize font-semibold cursor-pointer"
+        :class="{
+          [priorityMap[task.priority || 'low'].colorsClasses]: true,
+          'py-1': !showPrioritySelect,
+        }"
       >
-        <span class="mx-2 flex-grow text-sm capitalize font-semibold">
+        <span
+          v-if="!showPrioritySelect"
+          @click="
+            () => {
+              showPrioritySelect = true;
+            }
+          "
+        >
           {{ task.priority || 'low' }}
         </span>
+        <select
+          v-if="showPrioritySelect"
+          ref="prioritySelect"
+          :value="task.priority || 'low'"
+          class="rounded-md outline-none py-1"
+          :class="priorityMap[task.priority || 'low'].colorsClasses"
+          @change="savePriority"
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="hight">Hight</option>
+          <option value="top">Top</option>
+        </select>
       </div>
 
       <div class="flex flex-grow items-center justify-center">
@@ -106,8 +129,9 @@
 <script setup lang="ts">
 import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, priorityMap, type Task } from '@/stores/tasks';
+import { onClickOutside } from '@vueuse/core';
 import { useDateFormat } from '@vueuse/shared';
-import { computed, type PropType } from 'vue';
+import { computed, nextTick, ref, watch, type PropType } from 'vue';
 
 const props = defineProps({
   task: {
@@ -157,5 +181,25 @@ const startedAt = (task: Task) => {
 
 const completedAt = (task: Task) => {
   return task.completed_at ? useDateFormat(task.completed_at, 'MM/DD/YY HH:mm:ss A').value : '-';
+};
+
+const showPrioritySelect = ref(false);
+const prioritySelect = ref(null);
+onClickOutside(prioritySelect, () => {
+  showPrioritySelect.value = !showPrioritySelect.value;
+});
+
+const savePriority = (event: Event) => {
+  const select = event.target as HTMLSelectElement;
+  if (!select.value) {
+    alert('Wrong priority!');
+  }
+
+  taskStore.updatePriority({
+    id: props.task.id,
+    priority: select.value,
+  });
+
+  showPrioritySelect.value = false;
 };
 </script>
