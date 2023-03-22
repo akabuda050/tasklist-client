@@ -26,12 +26,7 @@ import {
   faAnglesUp,
   faAnglesDown,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  faCirclePause,
-  faCirclePlay,
-  faSquareMinus,
-  faSquarePlus,
-} from '@fortawesome/free-regular-svg-icons';
+import { faCirclePause, faCirclePlay } from '@fortawesome/free-regular-svg-icons';
 
 /* add icons to the library */
 library.add(
