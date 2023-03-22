@@ -20,7 +20,7 @@
         <div class="flex">
           <button
             title="Filter"
-            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 mx-2 disabled:hover:text-gray-200 enabled:cursor-pointer"
             @click="() => (filtersOpened = !filtersOpened)"
           >
             <FontAwesomeIcon
@@ -31,7 +31,7 @@
           <button
             :disabled="disabled"
             title="Logout"
-            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 ml-4 border-2 disabled:border-gray-500 border-teal-500 hover:border-teal-700 rounded-[5px]"
+            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 mx-2 border-2 disabled:border-gray-500 border-teal-500 hover:border-teal-700 rounded-[5px]"
             @click="() => logout()"
           >
             <FontAwesomeIcon icon="fa-solid fa-person-running" size="xl" />
@@ -79,20 +79,20 @@
         </div>
       </div>
 
-      <div v-if="filtersOpened" class="flex items-center justify-between mb-2">
+      <div class="flex items-center justify-between gap-1 mb-2">
         <input
           type="text"
           name="search"
           id="search"
           placeholder="Enter task name to search"
-          class="mr-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-teal-500 block w-full rounded-md sm:text-sm invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
+          class="p-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 focus:outline-none focus:border-teal-500 block w-full rounded-md sm:text-sm invalid:border-pink-500 invalid:text-pink-600 focus:invalid:border-pink-500 focus:invalid:ring-pink-500 disabled:shadow-none"
           v-model="search"
         />
 
         <button
           title="Add"
           :disabled="disabled"
-          class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-2 enabled:cursor-pointer"
+          class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 px-2 enabled:cursor-pointer border-r"
           @click="
             () => {
               formOppened = true;
@@ -100,6 +100,17 @@
           "
         >
           <FontAwesomeIcon icon="fa-solid fa-circle-plus" size="xl" />
+        </button>
+
+        <button
+          :title="`${withDetails ? 'Less info' : 'More info'}`"
+          class="mx-1 disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
+          @click="() => (withDetails = !withDetails)"
+        >
+          <FontAwesomeIcon
+            :icon="`fa-solid ${withDetails ? 'fa-angles-down' : 'fa-angles-up '}`"
+            size="xl"
+          />
         </button>
       </div>
     </div>
@@ -126,7 +137,12 @@
           v-else
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
         >
-          <TaskCard v-for="task in tasksFiltered" :key="`${task.id}`" :task="task" />
+          <TaskCard
+            v-for="task in tasksFiltered"
+            :key="`${task.id}`"
+            :task="task"
+            :with-details="withDetails"
+          />
         </div>
       </div>
     </div>
@@ -216,4 +232,6 @@ watch(
     taskStore.sort(sortFilters[1], sortFilters[2]);
   },
 );
+
+const withDetails = ref(false);
 </script>

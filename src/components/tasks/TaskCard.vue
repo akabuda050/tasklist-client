@@ -1,7 +1,17 @@
 <template>
-  <div class="flex flex-col items-start h-full bg-white min-h-[200px] p-3 border rounded-lg shadow">
-    <div class="flex flex-col w-full mb-2 h-full border-b">
-      <div class="flex items-center justify-between text-lg border-b pb-1 mb-2">
+  <div class="flex flex-col items-start h-full bg-white p-3 rounded-lg shadow">
+    <div
+      class="flex flex-col w-full mb-2 h-full border-b"
+      :class="{
+        'pb-2': props.withDetails,
+      }"
+    >
+      <div
+        class="flex items-center justify-between text-lg pb-1"
+        :class="{
+          'border-b mb-2': props.withDetails,
+        }"
+      >
         <div class="flex items-center">
           <h3 class="font-semibold max-w-[240px] truncate mr-2">
             {{ props.task.name }}
@@ -24,7 +34,7 @@
           <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
         </button>
       </div>
-      <div class="flex items-start text-lg gap-2">
+      <div class="flex items-start text-lg gap-2" v-if="props.withDetails">
         <div class="flex flex-col items-start gap-2">
           <span class="text-sm font-semibold">Created: </span>
           <span class="text-sm font-semibold">Started: </span>
@@ -139,6 +149,10 @@ const props = defineProps({
   task: {
     type: Object as PropType<Task>,
     required: true,
+  },
+  withDetails: {
+    type: Boolean,
+    default: false,
   },
 });
 
