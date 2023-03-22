@@ -49,7 +49,9 @@
           v-if="!showPrioritySelect"
           @click="
             () => {
-              showPrioritySelect = true;
+              if (!props.task.completed_at) {
+                showPrioritySelect = true;
+              }
             }
           "
         >
