@@ -38,14 +38,20 @@
       </div>
     </div>
     <div class="w-full flex items-center justify-between">
-      <span class="mr-2">
-        <span class="text-sm font-semibold"
-          >Spent time:
-          <span class="text-sm font-normal"> {{ currentAt(task) }}</span>
+      <div
+        class="flex items-center justify-center py-1 px-2 rounded-lg"
+        :class="priorityMap[task.priority || 'low'].colorsClasses"
+      >
+        <span class="mx-2 flex-grow text-sm capitalize font-semibold">
+          {{ task.priority || 'low' }}
         </span>
-      </span>
+      </div>
 
-      <div class="flex items-center justify-end gap-2">
+      <div class="flex flex-grow items-center justify-center">
+        <span class="text-md font-bold"> {{ currentAt(task) }}</span>
+      </div>
+
+      <div class="flex items-center justify-end gap-4">
         <template v-if="!taskStateMap.completed">
           <button
             v-if="taskStateMap.unStarted"
@@ -99,9 +105,9 @@
 </template>
 <script setup lang="ts">
 import { useWebSocket } from '@/hooks/websocket';
-import { useTasks, type Task } from '@/stores/tasks';
+import { useTasks, priorityMap, type Task } from '@/stores/tasks';
 import { useDateFormat } from '@vueuse/shared';
-import { computed, ref, type PropType } from 'vue';
+import { computed, type PropType } from 'vue';
 
 const props = defineProps({
   task: {

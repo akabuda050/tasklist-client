@@ -14,6 +14,32 @@ export type Task = {
   completed_at: number | null;
 
   elapsed: number;
+
+  priority: string;
+};
+
+export const priorityMap: {
+  [key: Task['priority']]: {
+    colorsClasses: string;
+    order: number;
+  };
+} = {
+  low: {
+    colorsClasses: 'bg-emerald-200',
+    order: 1,
+  },
+  medium: {
+    colorsClasses: 'bg-yellow-200',
+    order: 2,
+  },
+  hight: {
+    colorsClasses: 'bg-orange-400 text-white',
+    order: 3,
+  },
+  top: {
+    colorsClasses: 'bg-red-600 text-white',
+    order: 4,
+  },
 };
 
 const timestamp = useTimestamp({ offset: 0 });
@@ -66,6 +92,18 @@ export const useTasks = defineStore('tasks', () => {
         } else {
           return (b.completed_at || 0) - (a.completed_at || 0);
         }
+      } else if (sortFilter === 'priority') {
+        if (sortDirection == 'asc') {
+          return (
+            (priorityMap[a.priority]?.order || 1) - (priorityMap[b.priority]?.order || 1) ||
+            a.created_at - b.created_at
+          );
+        } else {
+          return (
+            (priorityMap[b.priority]?.order || 1) - (priorityMap[a.priority]?.order || 1) ||
+            b.created_at - a.created_at
+          );
+        }
       } else {
         if (sortDirection == 'asc') {
           return a.created_at - b.created_at;
@@ -76,10 +114,11 @@ export const useTasks = defineStore('tasks', () => {
     });
   }
 
-  function add(name: string, project?: string) {
+  function add(name: string, priority: string, project?: string) {
     const task = {
       name: name,
       project: project,
+      priority,
     };
 
     send(

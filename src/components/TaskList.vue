@@ -56,6 +56,7 @@
             class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
             v-model="filters.sort_by"
           >
+            <option value="priority">Sort by priority</option>
             <option value="created_at">Sort by created</option>
             <option value="started_at">Sort by started</option>
             <option value="completed_at">Sort by completed</option>
@@ -163,7 +164,7 @@ const search = ref('');
 const filtersOpened = ref(true);
 const formOppened = ref(false);
 const filters = ref({
-  sort_by: 'created_at',
+  sort_by: 'priority',
   sort_dir: 'desc',
   status: 'all',
 });
