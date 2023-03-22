@@ -195,10 +195,7 @@ const savePriority = (event: Event) => {
     alert('Wrong priority!');
   }
 
-  taskStore.updatePriority({
-    id: props.task.id,
-    priority: select.value,
-  });
+  taskStore.updatePriority(props.task.id, select.value);
 
   showPrioritySelect.value = false;
 };
