@@ -9,7 +9,7 @@
           <FontAwesomeIcon
             icon="fa-solid fa-wifi"
             :beat="status === 'CONNECTING'"
-            size="xl"
+            size="1x"
             :class="{
               'text-yellow-400': status === 'CONNECTING',
               'text-green-400': status === 'OPEN',
@@ -20,7 +20,7 @@
         <div class="flex">
           <button
             title="Filter"
-            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-4 enabled:cursor-pointer"
+            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             @click="() => (filtersOpened = !filtersOpened)"
           >
             <FontAwesomeIcon
@@ -31,7 +31,7 @@
           <button
             :disabled="disabled"
             title="Logout"
-            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 border-2 disabled:border-gray-500 border-teal-500 hover:border-teal-700 rounded-[5px]"
+            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 ml-4 border-2 disabled:border-gray-500 border-teal-500 hover:border-teal-700 rounded-[5px]"
             @click="() => logout()"
           >
             <FontAwesomeIcon icon="fa-solid fa-person-running" size="xl" />
