@@ -5,6 +5,7 @@ import TaskList from './components/TaskList.vue';
 import { useWebSocket } from './hooks/websocket';
 import { useEventBus } from '@vueuse/core';
 import { useAuth } from './hooks/auth';
+import { useConfig } from './hooks/config';
 
 const retriesExided = ref(false);
 const { on, emit } = useEventBus<string>('default');
@@ -17,7 +18,8 @@ on((event: string, payload: any) => {
 
 const { send, open, reconnect } = useWebSocket();
 
-open(`wss://${window.location.hostname}:7654`, {
+const { serverUrl } = useConfig();
+open(serverUrl, {
   heartbeat: {
     message: 'ping',
     interval: 10000,
