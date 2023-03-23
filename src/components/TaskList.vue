@@ -3,9 +3,15 @@
     <div class="sticky top-0 bg-white shadow flex flex-col rounded border-b z-10 py-2 px-4">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center justify-between">
-          <span class="text-lg font-semibold max-w-[200px] truncate mr-2">{{
-            authState.userName
-          }}</span>
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-semibold max-w-[200px] truncate mr-2">{{
+              authState.userName
+            }}</span>
+            <span class="self-start text-xs font-semibold max-w-[200px] truncate mr-2">{{
+              tasksFiltered.length
+            }}</span>
+          </div>
+
           <FontAwesomeIcon
             icon="fa-solid fa-wifi"
             :beat="status === 'CONNECTING'"
@@ -36,44 +42,69 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-between flex-row mb-2">
-        <div class="flex items-center">
-          <select
-            class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
-            v-model="filters.status"
-          >
-            <option value="all">All</option>
-            <option value="pending">Unstarted</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
-          <span class="self-start text-xs font-bold">{{ tasksFiltered.length }}</span>
-        </div>
-        <div class="flex items-center">
-          <select
-            class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
-            v-model="filters.sort_by"
-          >
-            <option value="priority">Sort by priority</option>
-            <option value="created_at">Sort by created</option>
-            <option value="started_at">Sort by started</option>
-            <option value="completed_at">Sort by completed</option>
-            <option value="current_at">Sort by time taken</option>
-          </select>
+      <div class="flex items-center justify-between flex-row gap-1 mb-2">
+        <div class="flex items-center gap-1">
+          <div class="flex flex-col items-start">
+            <label for="status" class="text-sm font-medium text-slate-700">Status:</label>
+            <select
+              id="status"
+              class="p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
+              v-model="filters.status"
+            >
+              <option value="all">All</option>
+              <option value="pending">Unstarted</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
 
-          <button
-            :disabled="disabled"
-            title="Logout"
-            class="disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px]"
-            @click="() => (filters.sort_dir = filters.sort_dir === 'asc' ? 'desc' : 'asc')"
-          >
-            <FontAwesomeIcon
-              :icon="`fa-solid ${
-                filters.sort_dir === 'asc' ? 'fa-arrow-up-wide-short' : 'fa-arrow-down-wide-short'
-              }`"
-              size="xl"
-            />
-          </button>
+          <div class="flex flex-col items-start">
+            <label for="priority" class="text-sm font-medium text-slate-700">Priority:</label>
+            <select
+              id="priority"
+              class="p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
+              v-model="filters.priority"
+            >
+              <option value="all">All</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="hight">Hight</option>
+              <option value="top">Top</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <div class="flex flex-col items-start">
+            <label for="sort" class="text-sm font-medium text-slate-700">Sort by:</label>
+            <div class="flex items-center gap-1">
+              <select
+                id="sort"
+                class="p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
+                v-model="filters.sort_by"
+              >
+                <option value="priority">Priority</option>
+                <option value="created_at">Created</option>
+                <option value="started_at">Started</option>
+                <option value="completed_at">Completed</option>
+                <option value="current_at">Time taken</option>
+              </select>
+              <button
+                :disabled="disabled"
+                title="Logout"
+                class="self-end disabled:text-gray-500 text-teal-500 enabled:hover:text-teal-700 p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px]"
+                @click="() => (filters.sort_dir = filters.sort_dir === 'asc' ? 'desc' : 'asc')"
+              >
+                <FontAwesomeIcon
+                  :icon="`fa-solid ${
+                    filters.sort_dir === 'asc'
+                      ? 'fa-arrow-up-wide-short'
+                      : 'fa-arrow-down-wide-short'
+                  }`"
+                  size="xl"
+                />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -167,6 +198,7 @@ type Filters = {
   status: string;
   sort_by: string;
   sort_dir: string;
+  priority: string;
 };
 
 const { on } = useEventBus<string>('default');
@@ -185,6 +217,7 @@ const defailtFilters: Filters = {
   sort_by: 'priority',
   sort_dir: 'desc',
   status: 'all',
+  priority: 'all',
 };
 
 const localStorageFiltersState = localStorage.getItem('task:filters');
@@ -196,6 +229,7 @@ const resetFilters = () => {
   filters.status = defailtFilters.status;
   filters.sort_by = defailtFilters.sort_by;
   filters.sort_dir = defailtFilters.sort_dir;
+  filters.priority = defailtFilters.priority;
 };
 
 on((event: string, payload: any) => {
@@ -230,6 +264,10 @@ const tasksFiltered = computed(() => {
     return t.id;
   });
 
+  if (filters.priority !== 'all') {
+    tasks = tasks.filter((t) => t.priority === filters.priority);
+  }
+
   if (search.value) {
     tasks = tasks.filter((t) =>
       new RegExp(search.value.toLocaleLowerCase()).test(t.name.toLocaleLowerCase()),
@@ -240,7 +278,7 @@ const tasksFiltered = computed(() => {
 });
 
 watch(
-  () => [filters.status, filters.sort_by, filters.sort_dir],
+  () => [filters.status, filters.sort_by, filters.sort_dir, filters.priority],
   (sortFilters) => {
     localStorage.setItem(
       'task:filters',
@@ -248,6 +286,7 @@ watch(
         status: sortFilters[0],
         sort_by: sortFilters[1],
         sort_dir: sortFilters[2],
+        priority: sortFilters[3],
       }),
     );
 
