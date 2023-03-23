@@ -113,6 +113,8 @@ export const useAuth = () => {
 
       localStorage.removeItem('token');
       localStorage.removeItem('username');
+      localStorage.removeItem('task:filters');
+      localStorage.removeItem('task:withDetails');
 
       useTasks().tasks = [];
     }

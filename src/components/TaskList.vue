@@ -19,7 +19,7 @@
         </div>
         <div class="flex">
           <button
-            title="Filter"
+            title="Reset filters"
             class="text-teal-500 enabled:hover:text-teal-700 p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px]"
             @click="() => resetFilters()"
           >
@@ -47,6 +47,7 @@
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
+          <span class="self-start text-xs font-bold">{{ tasksFiltered.length }}</span>
         </div>
         <div class="flex items-center">
           <select
@@ -186,7 +187,7 @@ const defailtFilters: Filters = {
   status: 'all',
 };
 
-const localStorageFiltersState = localStorage.getItem('filters');
+const localStorageFiltersState = localStorage.getItem('task:filters');
 const filters = reactive<Filters>(
   localStorageFiltersState ? (JSON.parse(localStorageFiltersState) as Filters) : defailtFilters,
 );
@@ -242,7 +243,7 @@ watch(
   () => [filters.status, filters.sort_by, filters.sort_dir],
   (sortFilters) => {
     localStorage.setItem(
-      'filters',
+      'task:filters',
       JSON.stringify({
         status: sortFilters[0],
         sort_by: sortFilters[1],
