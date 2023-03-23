@@ -114,36 +114,34 @@
         </button>
       </div>
     </div>
-    <div class="py-2 px-3 rounded" :class="{ 'opacity-50': disabled }">
-      <div class="mx-auto">
-        <div
-          v-if="!tasksFiltered.length"
-          class="h-[calc(100vh-200px)] border-t pr-1.5 space-y-1 flex flex-col items-center justify-center"
+    <div class="min-h-[calc(100vh_-_200px)] py-2 px-3 rounded" :class="{ 'opacity-50': disabled }">
+      <div
+        v-if="!tasksFiltered.length"
+        class="min-h-[calc(100vh_-_200px)] pr-1.5 space-y-1 flex flex-col items-center justify-center"
+      >
+        <button
+          title="Add"
+          :disabled="disabled"
+          class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
+          @click="
+            () => {
+              formOppened = true;
+            }
+          "
         >
-          <button
-            title="Add"
-            :disabled="disabled"
-            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 mr-3 enabled:cursor-pointer"
-            @click="
-              () => {
-                formOppened = true;
-              }
-            "
-          >
-            <FontAwesomeIcon icon="fa-solid fa-circle-plus" size="3x" />
-          </button>
-        </div>
-        <div
-          v-else
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
-        >
-          <TaskCard
-            v-for="task in tasksFiltered"
-            :key="`${task.id}`"
-            :task="task"
-            :with-details="withDetails"
-          />
-        </div>
+          <FontAwesomeIcon icon="fa-solid fa-circle-plus" size="3x" />
+        </button>
+      </div>
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-2 gap-4 text-gray-500 list-inside dark:text-gray-400"
+      >
+        <TaskCard
+          v-for="task in tasksFiltered"
+          :key="`${task.id}`"
+          :task="task"
+          :with-details="withDetails"
+        />
       </div>
     </div>
 
