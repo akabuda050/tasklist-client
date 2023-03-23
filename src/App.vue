@@ -27,7 +27,7 @@ open(serverUrl, {
   },
   autoReconnect: {
     retries: 3,
-    delay: 8000,
+    delay: 3000,
     onFailed() {
       console.log('onFailed');
 
