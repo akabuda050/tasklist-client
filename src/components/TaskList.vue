@@ -230,6 +230,8 @@ const resetFilters = () => {
   filters.sort_by = defailtFilters.sort_by;
   filters.sort_dir = defailtFilters.sort_dir;
   filters.priority = defailtFilters.priority;
+
+  search.value = '';
 };
 
 on((event: string, payload: any) => {
