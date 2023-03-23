@@ -22,6 +22,9 @@
               :title="props.task.name"
               @click="
                 () => {
+                  if (task.completed_at) {
+                    return;
+                  }
                   showNameInput = !showNameInput;
                   $nextTick(() => {
                     nameInputRef?.focus();
