@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-start h-full bg-white p-3 rounded-lg shadow">
+  <div class="flex flex-col items-start h-full min-w-[350px] bg-white p-3 rounded-lg shadow">
     <div
       class="flex flex-col w-full mb-2 h-full border-b"
       :class="{
@@ -12,9 +12,9 @@
           'border-b mb-2': props.withDetails,
         }"
       >
-        <div class="flex items-center">
+        <div class="flex items-center gap-2">
           <div
-            class="flex items-center font-semibold min-h-[20px] min-w-[50px] max-w-[240px] mr-2 cursor-pointer"
+            class="flex items-center font-semibold min-h-[20px] min-w-[50px] max-w-[290px] lg:max-w-[400px] cursor-pointer"
           >
             <h3
               v-if="!showNameInput"
