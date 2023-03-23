@@ -24,7 +24,7 @@
               }
             "
           >
-            <h3 v-if="!showNameInput" class="truncate">
+            <h3 v-if="!showNameInput" class="truncate" :title="props.task.name">
               {{ props.task.name }}
             </h3>
             <input
