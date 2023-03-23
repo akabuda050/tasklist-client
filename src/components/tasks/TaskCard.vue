@@ -15,16 +15,20 @@
         <div class="flex items-center">
           <div
             class="flex items-center font-semibold min-h-[20px] min-w-[50px] max-w-[240px] mr-2 cursor-pointer"
-            @click="
-              () => {
-                showNameInput = !showNameInput;
-                $nextTick(() => {
-                  nameInputRef?.focus();
-                });
-              }
-            "
           >
-            <h3 v-if="!showNameInput" class="truncate" :title="props.task.name">
+            <h3
+              v-if="!showNameInput"
+              class="truncate"
+              :title="props.task.name"
+              @click="
+                () => {
+                  showNameInput = !showNameInput;
+                  $nextTick(() => {
+                    nameInputRef?.focus();
+                  });
+                }
+              "
+            >
               {{ props.task.name }}
             </h3>
             <input
@@ -32,7 +36,7 @@
               type="text"
               v-model="nameInputValue"
               ref="nameInputRef"
-              @change="saveName"
+              @keydown.enter="saveName"
               class="outline-none"
             />
           </div>
