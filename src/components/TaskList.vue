@@ -20,13 +20,10 @@
         <div class="flex">
           <button
             title="Filter"
-            class="disabled:text-gray-200 text-teal-500 hover:text-teal-700 mx-2 disabled:hover:text-gray-200 enabled:cursor-pointer"
-            @click="() => (filtersOpened = !filtersOpened)"
+            class="text-teal-500 enabled:hover:text-teal-700 p-1 border-2 border-teal-500 hover:border-teal-700 rounded-[5px]"
+            @click="() => resetFilters()"
           >
-            <FontAwesomeIcon
-              :icon="`fa-solid ${filtersOpened ? 'fa-filter-circle-xmark' : 'fa-filter'}`"
-              size="xl"
-            />
+            <FontAwesomeIcon :icon="`fa-solid fa-filter-circle-xmark`" size="xl" />
           </button>
           <button
             :disabled="disabled"
@@ -39,7 +36,7 @@
         </div>
       </div>
 
-      <div v-if="filtersOpened" class="flex items-center justify-between flex-row mb-2">
+      <div class="flex items-center justify-between flex-row mb-2">
         <div class="flex items-center">
           <select
             class="p-1 mr-2 border-2 border-teal-500 hover:border-teal-700 rounded-[5px] appereance-none"
@@ -105,7 +102,7 @@
         <button
           :title="`${withDetails ? 'Less info' : 'More info'}`"
           class="mx-1 disabled:text-gray-200 text-teal-500 hover:text-teal-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
-          @click="() => (withDetails = !withDetails)"
+          @click="() => toggleDetails()"
         >
           <FontAwesomeIcon
             :icon="`fa-solid ${withDetails ? 'fa-angles-down' : 'fa-angles-up '}`"
@@ -161,9 +158,15 @@ import { useWebSocket } from '@/hooks/websocket';
 import { useTasks } from '@/stores/tasks';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useEventBus } from '@vueuse/core';
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, reactive } from 'vue';
 import TaskCard from './tasks/TaskCard.vue';
 import TaskForm from './tasks/TaskForm.vue';
+
+type Filters = {
+  status: string;
+  sort_by: string;
+  sort_dir: string;
+};
 
 const { on } = useEventBus<string>('default');
 const { state: authState, logout } = useAuth();
@@ -175,18 +178,29 @@ const disabled = computed(() => {
 });
 
 const search = ref('');
-const filtersOpened = ref(true);
 const formOppened = ref(false);
-const filters = ref({
+
+const defailtFilters: Filters = {
   sort_by: 'priority',
   sort_dir: 'desc',
   status: 'all',
-});
+};
+
+const localStorageFiltersState = localStorage.getItem('filters');
+const filters = reactive<Filters>(
+  localStorageFiltersState ? (JSON.parse(localStorageFiltersState) as Filters) : defailtFilters,
+);
+
+const resetFilters = () => {
+  filters.status = defailtFilters.status;
+  filters.sort_by = defailtFilters.sort_by;
+  filters.sort_dir = defailtFilters.sort_dir;
+};
 
 on((event: string, payload: any) => {
   if (event === 'list') {
     taskStore.setList(payload.data?.tasks || []);
-    taskStore.sort(filters.value.sort_by, filters.value.sort_dir);
+    taskStore.sort(filters.sort_by, filters.sort_dir);
   }
 
   if (event === 'created') {
@@ -204,11 +218,11 @@ on((event: string, payload: any) => {
 
 const tasksFiltered = computed(() => {
   let tasks = taskStore.tasks.filter((t) => {
-    if (filters.value.status === 'in_progress') {
+    if (filters.status === 'in_progress') {
       return t.started_at && !t.completed_at;
-    } else if (filters.value.status === 'completed') {
+    } else if (filters.status === 'completed') {
       return t.started_at && t.completed_at;
-    } else if (filters.value.status === 'pending') {
+    } else if (filters.status === 'pending') {
       return !t.started_at && !t.completed_at;
     }
 
@@ -225,11 +239,25 @@ const tasksFiltered = computed(() => {
 });
 
 watch(
-  () => [filters.value.status, filters.value.sort_by, filters.value.sort_dir],
+  () => [filters.status, filters.sort_by, filters.sort_dir],
   (sortFilters) => {
+    localStorage.setItem(
+      'filters',
+      JSON.stringify({
+        status: sortFilters[0],
+        sort_by: sortFilters[1],
+        sort_dir: sortFilters[2],
+      }),
+    );
+
     taskStore.sort(sortFilters[1], sortFilters[2]);
   },
 );
 
-const withDetails = ref(false);
+const withDetails = ref(localStorage.getItem('task:withDetails') === 'true');
+const toggleDetails = () => {
+  withDetails.value = !withDetails.value;
+
+  localStorage.setItem('task:withDetails', withDetails.value ? 'true' : 'false');
+};
 </script>
