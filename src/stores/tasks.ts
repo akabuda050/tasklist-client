@@ -147,6 +147,21 @@ export const useTasks = defineStore('tasks', () => {
     );
   }
 
+  function updateName(id: Task['id'], name: Task['name']) {
+    send(
+      JSON.stringify({
+        type: 'updateName',
+        data: {
+          task: {
+            id,
+            name,
+          },
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+
   function remove(task: Task) {
     send(
       JSON.stringify({
@@ -257,6 +272,7 @@ export const useTasks = defineStore('tasks', () => {
     tasks,
     add,
     updatePriority,
+    updateName,
     remove,
     start,
     pause,

@@ -13,11 +13,31 @@
         }"
       >
         <div class="flex items-center">
-          <h3 class="font-semibold max-w-[240px] truncate mr-2">
-            {{ props.task.name }}
-          </h3>
+          <div
+            class="flex items-center font-semibold min-h-[20px] min-w-[50px] max-w-[240px] mr-2 cursor-pointer"
+            @click="
+              () => {
+                showNameInput = !showNameInput;
+                $nextTick(() => {
+                  nameInputRef?.focus();
+                });
+              }
+            "
+          >
+            <h3 v-if="!showNameInput" class="truncate">
+              {{ props.task.name }}
+            </h3>
+            <input
+              v-else
+              type="text"
+              v-model="nameInputValue"
+              ref="nameInputRef"
+              @change="saveName"
+              class="outline-none"
+            />
+          </div>
           <span
-            class="w-3 h-3 flex-shrink-0 rounded-full"
+            class="w-3 h-3 rounded-full"
             :class="{
               'bg-yellow-400': taskStateMap.started,
               'bg-gray-400': taskStateMap.unStarted,
@@ -209,10 +229,32 @@ const savePriority = (event: Event) => {
   const select = event.target as HTMLSelectElement;
   if (!select.value) {
     alert('Wrong priority!');
+    return;
   }
 
   taskStore.updatePriority(props.task.id, select.value);
 
   showPrioritySelect.value = false;
+};
+
+const showNameInput = ref(false);
+const nameInputRef = ref<HTMLInputElement | null>(null);
+const nameInputValue = ref<string>(props.task.name);
+onClickOutside(nameInputRef, () => {
+  saveName();
+});
+
+const saveName = () => {
+  showNameInput.value = false;
+  if (!nameInputValue.value) {
+    nameInputValue.value = props.task.name;
+    return;
+  }
+
+  if (nameInputValue.value === props.task.name) {
+    return;
+  }
+
+  taskStore.updateName(props.task.id, nameInputValue.value);
 };
 </script>
