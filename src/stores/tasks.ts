@@ -4,7 +4,7 @@ import { useWebSocket } from '@/hooks/websocket';
 import { useTimestamp } from '@vueuse/core';
 
 export type Task = {
-  id: number;
+  id: number | string;
   name: string;
   project?: string;
   created_at: number;

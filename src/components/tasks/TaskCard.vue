@@ -3,13 +3,13 @@
     <div
       class="flex flex-col w-full mb-2 h-full border-b"
       :class="{
-        'pb-2': props.withDetails,
+        'pb-2': withDetails,
       }"
     >
       <div
         class="flex items-center justify-between text-lg pb-1"
         :class="{
-          'border-b mb-2': props.withDetails,
+          'border-b mb-2': withDetails,
         }"
       >
         <div class="flex items-center gap-2">
@@ -19,7 +19,7 @@
             <h3
               v-if="!showNameInput"
               class="truncate"
-              :title="props.task.name"
+              :title="task.name"
               @click="
                 () => {
                   if (task.completed_at) {
@@ -32,7 +32,7 @@
                 }
               "
             >
-              {{ props.task.name }}
+              {{ task.name }}
             </h3>
             <input
               v-else
@@ -44,8 +44,8 @@
             />
           </div>
           <span
-            class="w-3 h-3 rounded-full"
             :class="{
+              'w-3 h-3 rounded-full': true,
               'bg-yellow-400': taskStateMap.started,
               'bg-gray-400': taskStateMap.unStarted,
               'bg-green-500': taskStateMap.completed,
@@ -61,7 +61,7 @@
           <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
         </button>
       </div>
-      <div class="flex items-start text-lg gap-2" v-if="props.withDetails">
+      <div class="flex items-start text-lg gap-2" v-if="withDetails">
         <div class="flex flex-col items-start gap-2">
           <span class="text-sm font-semibold">Created: </span>
           <span class="text-sm font-semibold">Started: </span>
@@ -86,7 +86,7 @@
           v-if="!showPrioritySelect"
           @click="
             () => {
-              if (!props.task.completed_at) {
+              if (!task.completed_at) {
                 showPrioritySelect = true;
               }
             }
