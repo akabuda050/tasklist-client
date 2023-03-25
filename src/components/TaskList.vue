@@ -203,7 +203,7 @@ type Filters = {
 
 const { on } = useEventBus<string>('default');
 const { state: authState, logout } = useAuth();
-const { status } = useWebSocket();
+const { status, send } = useWebSocket();
 const taskStore = useTasks();
 
 const disabled = computed(() => {
@@ -235,21 +235,28 @@ const resetFilters = () => {
 };
 
 on((event: string, payload: any) => {
-  if (event === 'list') {
-    taskStore.setList(payload.data?.tasks || []);
+  if (event === 'websocket.message.loggedin') {
+    send(
+      JSON.stringify({
+        type: 'list',
+        data: {
+          token: localStorage.getItem('token'),
+        },
+      }),
+    );
+  }
+  if (event === 'websocket.message.list') {
+    console.log(payload);
+    taskStore.setList(payload.tasks || []);
     taskStore.sort(filters.sort_by, filters.sort_dir);
   }
 
-  if (event === 'created') {
-    taskStore.addToList(payload.data?.task);
+  if (event === 'websocket.message.created') {
+    taskStore.addToList(payload.task);
   }
 
-  if (event === 'updated') {
-    taskStore.updateInList(payload.data?.task);
-  }
-
-  if (event === 'deleted') {
-    taskStore.deleteFromList(payload.data?.task);
+  if (event === 'websocket.message.deleted') {
+    taskStore.deleteFromList(payload.task);
   }
 });
 

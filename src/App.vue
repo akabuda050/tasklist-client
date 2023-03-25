@@ -3,71 +3,22 @@ import { ref } from 'vue';
 import Auth from './components/auth/Auth.vue';
 import TaskList from './components/TaskList.vue';
 import { useWebSocket } from './hooks/websocket';
-import { useEventBus } from '@vueuse/core';
 import { useAuth } from './hooks/auth';
-import { useConfig } from './hooks/config';
+import { useDefaultEventBus } from './hooks/events';
 
+const { on } = useDefaultEventBus();
 const retriesExided = ref(false);
-const { on, emit } = useEventBus<string>('default');
 
 on((event: string, payload: any) => {
-  if (event === 'error') {
-    alert(payload?.data?.message);
+  if (event === 'websocket.connection.failed') {
+    retriesExided.value = true;
+  }
+  if (event === 'websocket.message.loggedin') {
+    useAuth().authenticate(payload.token, payload.username);
   }
 });
 
-const { send, open, reconnect } = useWebSocket();
-
-const { serverUrl } = useConfig();
-open(serverUrl, {
-  heartbeat: {
-    message: 'ping',
-    interval: 10000,
-    pongTimeout: 2000,
-  },
-  autoReconnect: {
-    retries: 3,
-    delay: 3000,
-    onFailed() {
-      console.log('onFailed');
-
-      retriesExided.value = true;
-    },
-  },
-  onConnected: (ws: WebSocket) => {
-    console.log('onConnected');
-
-    useAuth()
-      .checkAuth()
-      .then((res) => {
-        if (res) {
-          send(
-            JSON.stringify({
-              type: 'list',
-              data: {
-                token: localStorage.getItem('token'),
-              },
-            }),
-          );
-        }
-      });
-  },
-  onDisconnected: (ws: WebSocket, event: CloseEvent) => {
-    console.log('onDisconnected');
-  },
-  onError: (ws: WebSocket, event: Event) => {
-    console.log('onError');
-  },
-  onMessage: (ws: WebSocket, messageEvent: MessageEvent) => {
-    if (messageEvent.data === 'pong') return;
-
-    const event = JSON.parse(messageEvent.data);
-
-    if (event?.type) {
-      emit(event.type, event);
-    }
-  },
-});
+const { open } = useWebSocket();
 
 useAuth().checkAuth();
 </script>
@@ -80,7 +31,7 @@ useAuth().checkAuth();
       @click="
         () => {
           retriesExided = false;
-          reconnect();
+          open();
         }
       "
     >

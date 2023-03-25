@@ -18,6 +18,7 @@
           >
             <h3
               v-if="!showNameInput"
+              data-test="name"
               class="truncate"
               :title="task.name"
               @click="
@@ -35,6 +36,7 @@
               {{ task.name }}
             </h3>
             <input
+              data-test="name-input"
               v-else
               type="text"
               v-model="nameInputValue"
@@ -44,15 +46,17 @@
             />
           </div>
           <span
+            data-test="status-color"
             :class="{
               'w-3 h-3 rounded-full': true,
               'bg-yellow-400': taskStateMap.started,
-              'bg-gray-400': taskStateMap.unStarted,
+              'bg-gray-400': taskStateMap.pending,
               'bg-green-500': taskStateMap.completed,
             }"
           ></span>
         </div>
         <button
+          data-test="remove-button"
           :disabled="disabled"
           class="disabled:text-gray-200 text-red-500 hover:text-red-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
           title="Remove"
@@ -61,21 +65,22 @@
           <FontAwesomeIcon icon="fa-solid fa-trash" size="lg"></FontAwesomeIcon>
         </button>
       </div>
-      <div class="flex items-start text-lg gap-2" v-if="withDetails">
+      <div v-if="withDetails" class="flex items-start text-lg gap-2" data-test="details">
         <div class="flex flex-col items-start gap-2">
           <span class="text-sm font-semibold">Created: </span>
           <span class="text-sm font-semibold">Started: </span>
           <span class="text-sm font-semibold">Completed: </span>
         </div>
         <div class="flex flex-col items-start gap-2">
-          <span class="text-sm font-normal">{{ createdAt(task) }}</span>
-          <span class="text-sm font-normal">{{ startedAt(task) }}</span>
-          <span class="text-sm font-normal">{{ completedAt(task) }}</span>
+          <span class="text-sm font-normal" data-test="created-at">{{ createdAt(task) }}</span>
+          <span class="text-sm font-normal" data-test="started-at">{{ startedAt(task) }}</span>
+          <span class="text-sm font-normal" data-test="completed-at">{{ completedAt(task) }}</span>
         </div>
       </div>
     </div>
     <div class="w-full flex items-center justify-between">
       <div
+        data-test="priority"
         class="flex items-center justify-center text-left px-2 rounded-lg text-sm capitalize font-semibold cursor-pointer"
         :class="{
           [priorityMap[task.priority || 'low'].colorsClasses]: true,
@@ -83,6 +88,7 @@
         }"
       >
         <span
+          data-test="priority-label"
           v-if="!showPrioritySelect"
           @click="
             () => {
@@ -96,6 +102,7 @@
         </span>
         <select
           v-if="showPrioritySelect"
+          data-test="priority-select"
           ref="prioritySelect"
           :value="task.priority || 'low'"
           class="rounded-md outline-none py-1"
@@ -109,23 +116,25 @@
         </select>
       </div>
 
-      <div class="flex flex-grow items-center justify-center">
+      <div class="flex flex-grow items-center justify-center" data-test="elapsed-time">
         <span class="text-md font-bold"> {{ currentAt(task) }}</span>
       </div>
 
       <div class="flex items-center justify-end gap-4">
         <template v-if="!taskStateMap.completed">
           <button
-            v-if="taskStateMap.unStarted"
+            v-if="taskStateMap.pending"
+            data-test="start-button"
             :disabled="disabled"
             class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             title="Start"
-            @click="() => taskStore.start(task)"
+            @click="start"
           >
             <FontAwesomeIcon icon="fa-regular fa-circle-play" size="xl"></FontAwesomeIcon>
           </button>
           <button
             v-if="taskStateMap.running"
+            data-test="pause-button"
             :disabled="disabled"
             class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             title="Pause"
@@ -135,6 +144,7 @@
           </button>
           <button
             v-if="taskStateMap.paused"
+            data-test="resume-button"
             :disabled="disabled"
             class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             title="Resume"
@@ -144,6 +154,7 @@
           </button>
           <button
             :disabled="disabled"
+            data-test="complete-button"
             class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             title="Complete"
             @click="() => taskStore.complete(task)"
@@ -153,6 +164,7 @@
         </template>
         <template v-if="taskStateMap.completed">
           <button
+            data-test="restart-button"
             :disabled="disabled"
             class="disabled:text-gray-200 text-green-500 hover:text-green-700 disabled:hover:text-gray-200 enabled:cursor-pointer"
             title="Restart"
@@ -166,6 +178,7 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useDefaultEventBus } from '@/hooks/events';
 import { useWebSocket } from '@/hooks/websocket';
 import { useTasks, priorityMap, type Task } from '@/stores/tasks';
 import { onClickOutside } from '@vueuse/core';
@@ -184,13 +197,21 @@ const props = defineProps({
 });
 
 const { status } = useWebSocket();
+const { on } = useDefaultEventBus();
+on((event: string, payload: any) => {
+  if (event === 'websocket.message.updated') {
+    console.log(`${event}: task card ${props.task.id}`);
+
+    taskStore.updateInList(payload?.task);
+  }
+});
 
 const disabled = computed(() => {
   return status.value !== 'OPEN';
 });
 
 const taskStateMap = computed(() => ({
-  unStarted: !props.task.started_at && !props.task.completed_at,
+  pending: !props.task.started_at && !props.task.completed_at,
   started: !!props.task.started_at && !props.task.completed_at,
   paused: !!props.task.paused_at,
   running: !!props.task.started_at && !props.task.completed_at && !props.task.paused_at,
@@ -263,5 +284,9 @@ const saveName = () => {
   }
 
   taskStore.updateName(props.task.id, nameInputValue.value);
+};
+
+const start = () => {
+  taskStore.start(props.task);
 };
 </script>
